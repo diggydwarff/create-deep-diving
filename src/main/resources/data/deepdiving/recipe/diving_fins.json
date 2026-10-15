@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "L L",
+    "K K",
+    "B B"
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    },
+    "B": {
+      "item": "create:brass_nugget"
+    }
+  },
+  "result": {
+    "id": "deepdiving:diving_fins",
+    "count": 1
+  }
+}

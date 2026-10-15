@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "category": "misc",
+  "pattern": [
+    " R ",
+    "CTC",
+    " B "
+  ],
+  "key": {
+    "R": {
+      "item": "deepdiving:diving_regulator"
+    },
+    "C": {
+      "item": "deepdiving:advanced_diving_cylinder"
+    },
+    "T": {
+      "item": "create:fluid_tank"
+    },
+    "B": {
+      "item": "create:brass_casing"
+    }
+  },
+  "result": {
+    "id": "deepdiving:high_capacity_diving_cylinder",
+    "count": 1
+  },
+  "accept_mirrored": true,
+  "show_notification": false
+}

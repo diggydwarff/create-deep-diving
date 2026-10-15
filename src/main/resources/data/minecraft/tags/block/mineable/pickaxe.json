@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:gas_compressor",
+    "deepdiving:gas_separator",
+    "deepdiving:gas_blending_station",
+    "deepdiving:gas_storage",
+    "deepdiving:advanced_diving_cylinder",
+    "deepdiving:high_capacity_diving_cylinder",
+    "deepdiving:emergency_air_cylinder"
+  ]
+}

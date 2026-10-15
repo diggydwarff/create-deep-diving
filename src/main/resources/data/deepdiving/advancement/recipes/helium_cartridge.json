@@ -1,0 +1,26 @@
+{
+  "criteria": {
+    "has_brass": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "create:brass_ingot"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_brass"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:helium_cartridge"
+    ]
+  }
+}

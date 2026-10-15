@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "OCO",
+    "PMP",
+    " S "
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "create:copper_casing"
+    },
+    "P": {
+      "item": "create:fluid_pipe"
+    },
+    "M": {
+      "item": "create:precision_mechanism"
+    },
+    "S": {
+      "item": "create:shaft"
+    }
+  },
+  "result": {
+    "id": "deepdiving:gas_separator",
+    "count": 1
+  }
+}

@@ -1,0 +1,138 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.140'
+}
+
+group = 'com.diggydwarff.deepdiving'
+
+version = mod_version
+
+base {
+    archivesName = 'create-deep-diving-1.21.1'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    maven {
+        url = 'https://maven.createmod.net'
+    }
+
+    maven {
+        url = 'https://maven.ithundxr.dev/snapshots'
+    }
+
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.simibubi.create:create-1.21.1:${create_version}:slim") {
+        transitive = false
+    }
+
+    implementation "net.createmod.ponder:ponder-neoforge:${ponder_version}+mc1.21.1"
+
+    compileOnly "dev.engine-room.flywheel:flywheel-neoforge-api-1.21.1:${flywheel_version}"
+
+    runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-1.21.1:${flywheel_version}"
+
+    implementation "com.tterrag.registrate:Registrate:${registrate_version}"
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        configureEach {
+            gameDirectory = project.file("run/${name}")
+        }
+
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        deepdiving {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+// Expand release metadata without hard-coding the version in the mod descriptor.
+tasks.withType(ProcessResources).configureEach {
+    inputs.property 'mod_version', mod_version
+
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand mod_version: mod_version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// QA helpers compile against the mod but stay outside the production JAR.
+sourceSets {
+    qa {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+if (project.hasProperty('qa')) {
+    neoForge.mods.deepdiving.sourceSet sourceSets.qa
+
+    neoForge.runs.server.systemProperty 'deepdiving.qa', 'true'
+
+    if (project.hasProperty('creativeQa')) {
+        neoForge.runs.server.systemProperty 'deepdiving.creativeQa', 'true'
+    }
+
+    neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'true'
+
+    neoForge.runs.client.programArguments.addAll('--width', '1280', '--height', '900')
+
+    if (project.hasProperty('shaderQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.shaderQa', 'true'
+    }
+
+    if (project.hasProperty('computerQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.computerQa', 'true'
+    }
+}
+
+tasks.register('simulationTest', JavaExec) {
+    dependsOn tasks.named('compileQaJava')
+
+    classpath = sourceSets.qa.runtimeClasspath
+
+    mainClass = 'com.diggydwarff.deepdiving.qa.SimulationTest'
+}
+
+tasks.register('verifyServerProbe') {
+    dependsOn tasks.named('runServer')
+
+    doLast {
+        def report = file('run/server/qa-results.txt')
+
+        if (!project.hasProperty('qa')
+                || !report.exists()
+                || report.text.contains('FAIL ')
+                || !report.text.contains('PASS ')) {
+            throw new GradleException('Server probe did not pass; inspect run/server/qa-results.txt.')
+        }
+    }
+}
+
+tasks.named('jar') {
+    from('LICENSE')
+}

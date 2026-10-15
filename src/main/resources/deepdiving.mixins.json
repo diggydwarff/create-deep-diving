@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.diggydwarff.deepdiving.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "DivingHelmetMixin",
+    "DivingEffectMixin",
+    "FinsSwimmingMixin"
+  ],
+  "client": [
+    "DivingPostProcessMixin",
+    "CreateHelmetVisionMixin",
+    "OrbitPerspectiveMixin",
+    "OrbitMouseMixin",
+    "TreadingModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

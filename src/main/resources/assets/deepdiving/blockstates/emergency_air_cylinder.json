@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "deepdiving:block/placed_cylinder"
+    }
+  }
+}

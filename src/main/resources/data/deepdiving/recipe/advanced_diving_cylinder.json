@@ -1,0 +1,29 @@
+{
+  "type": "create:mechanical_crafting",
+  "category": "misc",
+  "pattern": [
+    " R ",
+    "CTC",
+    "III"
+  ],
+  "key": {
+    "R": {
+      "item": "deepdiving:diving_regulator"
+    },
+    "C": {
+      "item": "create:brass_ingot"
+    },
+    "T": {
+      "item": "create:fluid_tank"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "id": "deepdiving:advanced_diving_cylinder",
+    "count": 1
+  },
+  "accept_mirrored": true,
+  "show_notification": false
+}
