@@ -48,7 +48,10 @@ public final class ClientRegistration {
         net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent e
     ) {
         e.registerReloadListener(
-            (net.minecraft.server.packs.resources.ResourceManagerReloadListener) resources -> DivingPostProcess.reload()
+            (net.minecraft.server.packs.resources.ResourceManagerReloadListener) resources -> {
+                DivingPostProcess.reload();
+                com.diggydwarff.deepdiving.client.ambience.DeepWaterAmbience.reset();
+            }
         );
     }
 

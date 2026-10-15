@@ -34,5 +34,53 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "shallow_water_wash": {
+    "subtitle": "subtitles.deepdiving.shallow_water_wash",
+    "sounds": [
+      {
+        "name": "deepdiving:ambience/shallow_water_wash",
+        "preload": true
+      }
+    ]
+  },
+  "deep_water_wash": {
+    "subtitle": "subtitles.deepdiving.deep_water_wash",
+    "sounds": [
+      {
+        "name": "deepdiving:ambience/deep_water_wash",
+        "preload": true
+      }
+    ]
+  },
+  "distant_ocean": {
+    "subtitle": "subtitles.deepdiving.distant_ocean",
+    "sounds": [
+      {
+        "name": "deepdiving:ambience/distant_ocean_1",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "deepdiving:ambience/distant_ocean_2",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "deepdiving:ambience/distant_ocean_3",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "surface_activity": {
+    "subtitle": "subtitles.deepdiving.surface_activity",
+    "sounds": [
+      {
+        "name": "deepdiving:ambience/surface_activity_1",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "deepdiving:ambience/surface_activity_2",
+        "attenuation_distance": 64
+      }
+    ]
   }
 }

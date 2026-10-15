@@ -115,5 +115,9 @@
   "subtitles.deepdiving.regulator_inhale": "Regulator inhales",
   "subtitles.deepdiving.regulator_exhale": "Regulator exhales",
   "subtitles.deepdiving.helmet_inhale": "Diving helmet inhales",
-  "subtitles.deepdiving.helmet_exhale": "Diving helmet exhales"
+  "subtitles.deepdiving.helmet_exhale": "Diving helmet exhales",
+  "subtitles.deepdiving.shallow_water_wash": "Water moves gently",
+  "subtitles.deepdiving.deep_water_wash": "Deep water murmurs",
+  "subtitles.deepdiving.distant_ocean": "Distant ocean resonance",
+  "subtitles.deepdiving.surface_activity": "Distant water ripples"
 }

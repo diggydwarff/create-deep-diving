@@ -42,6 +42,28 @@ public final class DivingConfig {
 
     public static final ModConfigSpec.DoubleValue ACOUSTIC_TRANSITION;
 
+    public static final ModConfigSpec.BooleanValue DEEP_WATER_AMBIENCE;
+
+    public static final ModConfigSpec.BooleanValue MARINE_SNOW;
+
+    public static final ModConfigSpec.BooleanValue BIOLUMINESCENCE;
+
+    public static final ModConfigSpec.DoubleValue AMBIENT_VOLUME;
+
+    public static final ModConfigSpec.DoubleValue AMBIENT_FREQUENCY;
+
+    public static final ModConfigSpec.DoubleValue SHALLOW_AMBIENT_DEPTH;
+
+    public static final ModConfigSpec.DoubleValue DEEP_AMBIENT_DEPTH;
+
+    public static final ModConfigSpec.DoubleValue MARINE_SNOW_DEPTH;
+
+    public static final ModConfigSpec.DoubleValue MARINE_SNOW_DENSITY;
+
+    public static final ModConfigSpec.DoubleValue AMBIENCE_TRANSITION;
+
+    public static final ModConfigSpec.IntValue AMBIENCE_PARTICLE_LIMIT;
+
     public static final ModConfigSpec.BooleanValue ORBIT_CAMERA;
 
     public static final ModConfigSpec.BooleanValue WATER_BREATHING_BYPASS;
@@ -335,6 +357,25 @@ public final class DivingConfig {
         FILTERING_STRENGTH = builder.defineInRange("filteringStrength", .8, 0, 1);
         ACOUSTIC_TRANSITION = builder.comment("Seconds to blend across the surface or into an air pocket.")
             .defineInRange("transitionSeconds", .35, .05, 3);
+        builder.pop();
+        builder.push("ambience");
+        DEEP_WATER_AMBIENCE = builder.comment("Subtle underwater audio. Marine snow and bioluminescence have separate switches.")
+            .define("sounds", true);
+        AMBIENT_VOLUME = builder.defineInRange("ambientVolume", .10, 0, 1);
+        AMBIENT_FREQUENCY = builder.comment("Occasional sound frequency multiplier. 0 disables occasional sounds; continuous wash remains.")
+            .defineInRange("soundFrequency", 1.0, 0, 3);
+        SHALLOW_AMBIENT_DEPTH = builder.defineInRange("shallowDepth", 8.0, 0, 4096);
+        DEEP_AMBIENT_DEPTH = builder.comment("Depth of the deep-water soundscape. Values below shallowDepth are safely clamped.")
+            .defineInRange("deepDepth", 48.0, 1, 8192);
+        AMBIENCE_TRANSITION = builder.defineInRange("transitionSeconds", 1.2, .1, 10);
+        MARINE_SNOW = builder.define("marineSnow", true);
+        MARINE_SNOW_DEPTH = builder.defineInRange("marineSnowStartDepth", 24.0, 0, 8192);
+        MARINE_SNOW_DENSITY = builder.defineInRange("particleDensity", .7, 0, 1);
+        AMBIENCE_PARTICLE_LIMIT = builder.comment("Strict combined cap for marine snow and luminous specks. 0 disables both.",
+            "Minecraft's decreased/minimal particle settings further reduce this budget.")
+            .defineInRange("particleLimit", 64, 0, 256);
+        BIOLUMINESCENCE = builder.comment("Rare faint blue-green specks in ocean-tagged biomes. At most two are alive at once.")
+            .define("bioluminescence", true);
         builder.pop();
         CLIENT = builder.build();
     }
