@@ -51,6 +51,8 @@ public final class ClientRegistration {
             (net.minecraft.server.packs.resources.ResourceManagerReloadListener) resources -> {
                 DivingPostProcess.reload();
                 com.diggydwarff.deepdiving.client.ambience.DeepWaterAmbience.reset();
+                com.diggydwarff.deepdiving.client.sediment.SedimentClouds.reset();
+                UnderwaterParticleBudget.reset();
             }
         );
     }
@@ -61,6 +63,8 @@ public final class ClientRegistration {
         DivingPackets.clientReceiver = s -> snapshot = s;
         DivingPackets.poseReceiver = TreadingAnimation::receive;
         com.diggydwarff.deepdiving.network.BreathingPulse.clientReceiver = EquipmentBreathing::receive;
+        com.diggydwarff.deepdiving.network.SedimentPulse.clientReceiver =
+            com.diggydwarff.deepdiving.client.sediment.SedimentClouds::receive;
         com.diggydwarff.deepdiving.physiology.DivingEffects.customNauseaVisual =
             entity -> entity == Minecraft.getInstance().player
                 && DivingPostProcess.handlesNausea();

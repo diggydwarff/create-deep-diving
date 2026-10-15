@@ -64,6 +64,48 @@ public final class DivingConfig {
 
     public static final ModConfigSpec.IntValue AMBIENCE_PARTICLE_LIMIT;
 
+    public static final ModConfigSpec.BooleanValue SEDIMENT_DISTURBANCES;
+
+    public static final ModConfigSpec.BooleanValue SEDIMENT_MINING;
+
+    public static final ModConfigSpec.BooleanValue SEDIMENT_MOVEMENT;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_RADIUS;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_LIFETIME;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_MINING_DENSITY;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_MOVEMENT_DENSITY;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_MAXIMUM_DENSITY;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_RANGE;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_HEIGHT;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_MINIMUM_SPEED;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_CAREFUL_MULTIPLIER;
+
+    public static final ModConfigSpec.DoubleValue SEDIMENT_FINS_MULTIPLIER;
+
+    public static final ModConfigSpec.IntValue SEDIMENT_INTERVAL;
+
+    public static final ModConfigSpec.IntValue SEDIMENT_CLOUD_LIMIT;
+
+    public static final ModConfigSpec.BooleanValue SEDIMENT_PARTICLES;
+
+    public static final ModConfigSpec.BooleanValue SEDIMENT_AVOID_DUPLICATES;
+
+    public static final ModConfigSpec.IntValue SEDIMENT_PARTICLE_LIMIT;
+
+    public static final ModConfigSpec.IntValue SEDIMENT_SPAWN_BUDGET;
+
+    public static final ModConfigSpec.IntValue SEDIMENT_COLOR;
+
+    public static final ModConfigSpec.IntValue UNDERWATER_PARTICLE_LIMIT;
+
     public static final ModConfigSpec.BooleanValue ORBIT_CAMERA;
 
     public static final ModConfigSpec.BooleanValue WATER_BREATHING_BYPASS;
@@ -295,6 +337,25 @@ public final class DivingConfig {
         SAFE_ASCENT = builder.defineInRange("maximumAscentBlocksPerSecond", 0.75, 0.1, 10);
         SURFACE_SEARCH_LIMIT = builder.comment("Bounded local surface search, cached per diver for five seconds.")
             .defineInRange("surfaceSearchLimit", 2048, 64, 8192);
+        builder.push("sediment");
+        SEDIMENT_DISTURBANCES = builder.define("enabled", true);
+        SEDIMENT_MINING = builder.define("mining", true);
+        SEDIMENT_MOVEMENT = builder.define("bottomMovement", true);
+        SEDIMENT_RADIUS = builder.defineInRange("cloudRadius", 3.5, .5, 10);
+        SEDIMENT_LIFETIME = builder.defineInRange("cloudLifetimeSeconds", 18.0, 2, 120);
+        SEDIMENT_MINING_DENSITY = builder.defineInRange("miningDensity", .9, 0, 4);
+        SEDIMENT_MOVEMENT_DENSITY = builder.defineInRange("movementDensity", .3, 0, 4);
+        SEDIMENT_MAXIMUM_DENSITY = builder.defineInRange("maximumOverlapDensity", 2.0, .1, 8);
+        SEDIMENT_RANGE = builder.defineInRange("nearbyRange", 48.0, 8, 96);
+        SEDIMENT_HEIGHT = builder.defineInRange("maximumHeightAboveBed", 1.8, .5, 4);
+        SEDIMENT_MINIMUM_SPEED = builder.comment("Blocks per tick. Walking on the bottom uses one quarter of this threshold.")
+            .defineInRange("minimumMovementSpeed", .035, .005, .5);
+        SEDIMENT_CAREFUL_MULTIPLIER = builder.defineInRange("carefulMovementMultiplier", .4, 0, 1);
+        SEDIMENT_FINS_MULTIPLIER = builder.comment("Reduces newly disturbed sediment while diving fins are worn.")
+            .defineInRange("finsMultiplier", .65, 0, 1);
+        SEDIMENT_INTERVAL = builder.defineInRange("movementIntervalTicks", 12, 4, 100);
+        SEDIMENT_CLOUD_LIMIT = builder.defineInRange("maximumClouds", 12, 1, 32);
+        builder.pop();
         SERVER = builder.build();
         builder = new ModConfigSpec.Builder();
         HUD = builder.define("showHud", true);
@@ -376,6 +437,21 @@ public final class DivingConfig {
             .defineInRange("particleLimit", 64, 0, 256);
         BIOLUMINESCENCE = builder.comment("Rare faint blue-green specks in ocean-tagged biomes. At most two are alive at once.")
             .define("bioluminescence", true);
+        builder.pop();
+        builder.push("sediment");
+        SEDIMENT_PARTICLES = builder.comment("Temporary particle plumes only. Does not change biome fog or shader packs.")
+            .define("particles", true);
+        SEDIMENT_AVOID_DUPLICATES = builder.comment("Let standalone Murky Depths own sediment when installed on this client.")
+            .define("deferToMurkyDepths", true);
+        SEDIMENT_PARTICLE_LIMIT = builder.defineInRange("particleLimit", 200, 0, 1000);
+        SEDIMENT_SPAWN_BUDGET = builder.defineInRange("spawnAttemptsPerTick", 8, 0, 32);
+        SEDIMENT_COLOR = builder.comment("Sediment RGB as a decimal integer; default is hexadecimal 97856A.")
+            .defineInRange("color", 0x97856A, 0, 0xFFFFFF);
+        builder.pop();
+        builder.push("underwaterParticles");
+        UNDERWATER_PARTICLE_LIMIT = builder.comment("Shared hard cap for sediment, marine snow and bioluminescence.",
+            "Breathing exhaust and other mods' particles retain their own controls.")
+            .defineInRange("combinedLimit", 256, 0, 1024);
         builder.pop();
         CLIENT = builder.build();
     }

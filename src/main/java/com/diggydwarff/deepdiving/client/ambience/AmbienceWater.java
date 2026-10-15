@@ -11,8 +11,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-final class AmbienceWater {
-    static boolean contains(ClientLevel level, Vec3 point) {
+public final class AmbienceWater {
+    public static boolean contains(ClientLevel level, Vec3 point) {
         BlockPos pos = BlockPos.containing(point);
 
         if (!level.hasChunkAt(pos)) {
@@ -26,7 +26,7 @@ final class AmbienceWater {
             && !DeepSeasCompatibility.inDryCompartment(level, point);
     }
 
-    static boolean clearWater(ClientLevel level, Vec3 point) {
+    public static boolean clearWater(ClientLevel level, Vec3 point) {
         if (!contains(level, point)) {
             return false;
         }
@@ -35,7 +35,7 @@ final class AmbienceWater {
             point.x + .035, point.y + .025, point.z + .035));
     }
 
-    static boolean connected(ClientLevel level, Player player, Vec3 point) {
+    public static boolean connected(ClientLevel level, Player player, Vec3 point) {
         Vec3 eye = player.getEyePosition();
 
         int steps = Math.max(1, (int) Math.ceil(eye.distanceTo(point) * 2));

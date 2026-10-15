@@ -2,6 +2,7 @@ package com.diggydwarff.deepdiving.client.ambience;
 
 import com.diggydwarff.deepdiving.DeepDiving;
 import com.diggydwarff.deepdiving.client.ClientRegistration;
+import com.diggydwarff.deepdiving.client.UnderwaterParticleBudget;
 import com.diggydwarff.deepdiving.compat.DeepSeasCompatibility;
 import com.diggydwarff.deepdiving.config.DivingConfig;
 import com.diggydwarff.deepdiving.presentation.AmbienceMath;
@@ -251,7 +252,7 @@ public final class DeepWaterAmbience {
             particles.removeLast().remove();
         }
 
-        if (!wet || budget == 0) {
+        if (!wet || budget == 0 || UnderwaterParticleBudget.remaining() == 0) {
             spawnCredit = 0;
             return;
         }
@@ -296,8 +297,9 @@ public final class DeepWaterAmbience {
 
         MarineSnowParticle particle = new MarineSnowParticle(mc.level, origin, atlas, luminous);
 
-        particles.add(particle);
-        mc.particleEngine.add(particle);
+        if (UnderwaterParticleBudget.add(particle)) {
+            particles.add(particle);
+        }
     }
 
     private DeepWaterAmbience() {}
