@@ -26,6 +26,22 @@ public final class DivingConfig {
 
     public static final ModConfigSpec.BooleanValue BREATHING_BUBBLES;
 
+    public static final ModConfigSpec.BooleanValue EQUIPMENT_BREATHING;
+
+    public static final ModConfigSpec.BooleanValue EXHAUST_BUBBLES;
+
+    public static final ModConfigSpec.BooleanValue NEARBY_DIVERS;
+
+    public static final ModConfigSpec.BooleanValue SOUND_FILTERING;
+
+    public static final ModConfigSpec.DoubleValue BREATHING_VOLUME;
+
+    public static final ModConfigSpec.DoubleValue NEARBY_BREATHING_VOLUME;
+
+    public static final ModConfigSpec.DoubleValue FILTERING_STRENGTH;
+
+    public static final ModConfigSpec.DoubleValue ACOUSTIC_TRANSITION;
+
     public static final ModConfigSpec.BooleanValue ORBIT_CAMERA;
 
     public static final ModConfigSpec.BooleanValue WATER_BREATHING_BYPASS;
@@ -304,6 +320,21 @@ public final class DivingConfig {
             .define("alarms", true);
         ALARM_VOLUME = builder.defineInRange("alarmVolume", 0.15, 0, 1);
         ALARM_COOLDOWN = builder.defineInRange("alarmCooldownSeconds", 8, 1, 300);
+        builder.pop();
+        builder.push("acoustics");
+        EQUIPMENT_BREATHING = builder.define("equipmentBreathing", true);
+        BREATHING_VOLUME = builder.defineInRange("breathingVolume", .28, 0, 1);
+        EXHAUST_BUBBLES = builder.comment("Exhalation particles. The server breathingBubbles switch also applies.")
+            .define("exhaustBubbles", true);
+        NEARBY_DIVERS = builder.define("nearbyDivers", true);
+        NEARBY_BREATHING_VOLUME = builder.comment("Multiplier for other divers; distance attenuation also applies.")
+            .defineInRange("nearbyBreathingVolume", .45, 0, 1);
+        SOUND_FILTERING = builder.comment("Disable when another acoustic mod handles air/water transmission.",
+            "Equipment breathing and exhaust remain independently available.")
+            .define("soundFiltering", true);
+        FILTERING_STRENGTH = builder.defineInRange("filteringStrength", .8, 0, 1);
+        ACOUSTIC_TRANSITION = builder.comment("Seconds to blend across the surface or into an air pocket.")
+            .defineInRange("transitionSeconds", .35, .05, 3);
         builder.pop();
         CLIENT = builder.build();
     }

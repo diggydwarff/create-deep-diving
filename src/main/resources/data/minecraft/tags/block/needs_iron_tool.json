@@ -1,9 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "deepdiving:gas_compressor",
-    "deepdiving:gas_separator",
-    "deepdiving:gas_blending_station",
-    "deepdiving:gas_storage"
-  ]
-}

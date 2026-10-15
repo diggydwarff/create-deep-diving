@@ -57,6 +57,7 @@ public final class ClientRegistration {
         com.diggydwarff.deepdiving.diving.FinsService.clientPose = FinsClient::pose;
         DivingPackets.clientReceiver = s -> snapshot = s;
         DivingPackets.poseReceiver = TreadingAnimation::receive;
+        com.diggydwarff.deepdiving.network.BreathingPulse.clientReceiver = EquipmentBreathing::receive;
         com.diggydwarff.deepdiving.physiology.DivingEffects.customNauseaVisual =
             entity -> entity == Minecraft.getInstance().player
                 && DivingPostProcess.handlesNausea();

@@ -269,7 +269,12 @@ public final class DivingPackets {
     }
 
     public static void register(RegisterPayloadHandlersEvent e) {
-        e.registrar("6")
+        e.registrar("7")
+            .playToClient(
+                BreathingPulse.TYPE,
+                BreathingPulse.CODEC,
+                (pulse, ctx) -> ctx.enqueueWork(() -> BreathingPulse.clientReceiver.accept(pulse))
+            )
             .playToClient(Snapshot.TYPE, Snapshot.CODEC, (s, ctx) -> ctx.enqueueWork(() -> clientReceiver.accept(s)))
             .playToClient(
                 TreadingPose.TYPE,

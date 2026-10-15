@@ -29,12 +29,17 @@ public final class DeepSeasCompatibility {
     }
 
     public static boolean inDryCompartment(Player player) {
+        return inDryCompartment(player.level(), player.getEyePosition());
+    }
+
+    /** Audio sources can sit inside the same dry compartment as the listener. */
+    public static boolean inDryCompartment(Level level, Vec3 position) {
         if (sealed == null || !DivingConfig.DEEP_SEAS_COMPARTMENTS.get()) {
             return false;
         }
 
         try {
-            return Boolean.TRUE.equals(sealed.invoke(null, player.level(), player.getEyePosition()));
+            return Boolean.TRUE.equals(sealed.invoke(null, level, position));
         } catch (ReflectiveOperationException | LinkageError failure) {
             sealed = null;
             com.mojang.logging.LogUtils.getLogger()

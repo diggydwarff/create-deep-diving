@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/block",
-  "textures": {
-    "particle": "create:block/copper_backtank"
-  },
-  "elements": []
-}

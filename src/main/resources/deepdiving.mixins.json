@@ -13,7 +13,9 @@
     "CreateHelmetVisionMixin",
     "OrbitPerspectiveMixin",
     "OrbitMouseMixin",
-    "TreadingModelMixin"
+    "TreadingModelMixin",
+    "AcousticChannelMixin",
+    "AcousticSoundEngineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

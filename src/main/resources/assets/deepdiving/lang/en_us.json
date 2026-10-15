@@ -111,5 +111,9 @@
   "item.deepdiving.green_guide_line": "Green Guide Line",
   "item.deepdiving.red_guide_line": "Red Guide Line",
   "item.deepdiving.black_guide_line": "Black Guide Line",
-  "message.deepdiving.orbit_camera": "Orbit view: mouse rotates the camera, scroll zooms, %s exits. Swimming direction stays unchanged."
+  "message.deepdiving.orbit_camera": "Orbit view: mouse rotates the camera, scroll zooms, %s exits. Swimming direction stays unchanged.",
+  "subtitles.deepdiving.regulator_inhale": "Regulator inhales",
+  "subtitles.deepdiving.regulator_exhale": "Regulator exhales",
+  "subtitles.deepdiving.helmet_inhale": "Diving helmet inhales",
+  "subtitles.deepdiving.helmet_exhale": "Diving helmet exhales"
 }

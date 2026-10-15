@@ -1,0 +1,38 @@
+{
+  "regulator_inhale": {
+    "subtitle": "subtitles.deepdiving.regulator_inhale",
+    "sounds": [
+      {
+        "name": "deepdiving:equipment/regulator_inhale",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "regulator_exhale": {
+    "subtitle": "subtitles.deepdiving.regulator_exhale",
+    "sounds": [
+      {
+        "name": "deepdiving:equipment/regulator_exhale",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "helmet_inhale": {
+    "subtitle": "subtitles.deepdiving.helmet_inhale",
+    "sounds": [
+      {
+        "name": "deepdiving:equipment/helmet_inhale",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "helmet_exhale": {
+    "subtitle": "subtitles.deepdiving.helmet_exhale",
+    "sounds": [
+      {
+        "name": "deepdiving:equipment/helmet_exhale",
+        "attenuation_distance": 16
+      }
+    ]
+  }
+}
