@@ -449,6 +449,7 @@ public final class DivingConfig {
             "Breathing exhaust and other mods' particles retain their own controls.")
             .defineInRange("combinedLimit", 256, 0, 1024);
         builder.pop();
+        LampConfig.define(builder);
         CLIENT = builder.build();
     }
 

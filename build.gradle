@@ -14,6 +14,18 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'bundledIllumination'
+                url = uri('libs/maven')
+            }
+        }
+        filter {
+            includeModule('com.breadres', 'illuminationapi')
+        }
+    }
+
     maven {
         url = 'https://maven.createmod.net'
     }
@@ -26,6 +38,15 @@ repositories {
 }
 
 dependencies {
+    // Original upstream 1.0 JAR, pinned locally for reproducible Jar-in-Jar builds.
+    // The API's public MIT text and original metadata are preserved in META-INF/licenses.
+    jarJar(implementation('com.breadres:illuminationapi')) {
+        version {
+            strictly '[1.0]'
+            prefer '1.0'
+        }
+    }
+
     implementation("com.simibubi.create:create-1.21.1:${create_version}:slim") {
         transitive = false
     }
@@ -135,4 +156,22 @@ tasks.register('verifyServerProbe') {
 
 tasks.named('jar') {
     from('LICENSE')
+}
+
+tasks.register('verifyIllumination') {
+    def library = layout.projectDirectory.file('libs/maven/com/breadres/illuminationapi/1.0/illuminationapi-1.0.jar')
+    inputs.file(library)
+
+    doLast {
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+                .digest(library.asFile.bytes).encodeHex().toString()
+
+        if (digest != 'bb139cd8b37bf60b3e485b761afeae80d973a263e1fd601cce70f190f1bcaa8e') {
+            throw new GradleException('Bundled Illumination API does not match the reviewed upstream 1.0 artifact.')
+        }
+    }
+}
+
+tasks.named('jarJar') {
+    dependsOn tasks.named('verifyIllumination')
 }

@@ -53,6 +53,7 @@ public final class ClientRegistration {
                 com.diggydwarff.deepdiving.client.ambience.DeepWaterAmbience.reset();
                 com.diggydwarff.deepdiving.client.sediment.SedimentClouds.reset();
                 UnderwaterParticleBudget.reset();
+                com.diggydwarff.deepdiving.client.lighting.DivingLampLights.reset();
             }
         );
     }
@@ -62,6 +63,8 @@ public final class ClientRegistration {
         com.diggydwarff.deepdiving.diving.FinsService.clientPose = FinsClient::pose;
         DivingPackets.clientReceiver = s -> snapshot = s;
         DivingPackets.poseReceiver = TreadingAnimation::receive;
+        com.diggydwarff.deepdiving.network.LampState.clientReceiver =
+            com.diggydwarff.deepdiving.client.lighting.DivingLampLights::receive;
         com.diggydwarff.deepdiving.network.BreathingPulse.clientReceiver = EquipmentBreathing::receive;
         com.diggydwarff.deepdiving.network.SedimentPulse.clientReceiver =
             com.diggydwarff.deepdiving.client.sediment.SedimentClouds::receive;

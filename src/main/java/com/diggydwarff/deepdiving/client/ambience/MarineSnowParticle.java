@@ -76,9 +76,12 @@ final class MarineSnowParticle extends TextureSheetParticle {
 
     @Override
     protected int getLightColor(float partialTick) {
-        // Ordinary flakes use the real world light map, including the diving lamp and
-        // Fading Depths' sunlight changes. Never make marine snow full-bright.
-        return AmbienceMath.particleLight(super.getLightColor(partialTick), luminous);
+        // The lamp is rendered light, so reveal nearby flakes explicitly without
+        // changing terrain light or making particles beyond the beam emissive.
+        int light = com.diggydwarff.deepdiving.client.lighting.DivingLampLights.particleLight(
+            x, y, z, super.getLightColor(partialTick));
+
+        return AmbienceMath.particleLight(light, luminous);
     }
 
     @Override

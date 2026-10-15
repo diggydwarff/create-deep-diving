@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.breadres</groupId>
+  <artifactId>illuminationapi</artifactId>
+  <version>1.0</version>
+  <name>Illumination API</name>
+  <description>Unmodified CurseForge file 8713866, mirrored for Deep Diving's pinned build.</description>
+  <url>https://www.curseforge.com/minecraft/mc-mods/illumination-api</url>
+  <licenses>
+    <license>
+      <name>MIT (published project license; upstream JAR metadata discrepancy retained in notices)</name>
+      <url>https://www.curseforge.com/minecraft/mc-mods/illumination-api/license</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+</project>

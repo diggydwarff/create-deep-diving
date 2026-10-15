@@ -269,7 +269,12 @@ public final class DivingPackets {
     }
 
     public static void register(RegisterPayloadHandlersEvent e) {
-        e.registrar("8")
+        e.registrar("9")
+            .playToClient(
+                LampState.TYPE,
+                LampState.CODEC,
+                (state, ctx) -> ctx.enqueueWork(() -> LampState.clientReceiver.accept(state))
+            )
             .playToClient(
                 SedimentPulse.TYPE,
                 SedimentPulse.CODEC,

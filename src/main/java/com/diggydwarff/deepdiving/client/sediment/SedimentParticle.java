@@ -57,6 +57,12 @@ final class SedimentParticle extends TextureSheetParticle {
     }
 
     @Override
+    protected int getLightColor(float partialTick) {
+        return com.diggydwarff.deepdiving.client.lighting.DivingLampLights.particleLight(
+            x, y, z, super.getLightColor(partialTick));
+    }
+
+    @Override
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }

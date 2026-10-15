@@ -1,0 +1,18 @@
+Illumination API — license record, retrieved 2026-10-15
+
+Project author shown on CurseForge: reset300
+Artifact: illuminationapi-1.0.jar, NeoForge 1.21.1, CurseForge file 8713866
+SHA-256: bb139cd8b37bf60b3e485b761afeae80d973a263e1fd601cce70f190f1bcaa8e
+Source: https://www.curseforge.com/minecraft/mc-mods/illumination-api/license
+
+The published license text below is preserved verbatim, including placeholders.
+The downloaded artifact instead declares license="All Rights Reserved" and has
+no license/notice file. This record does not resolve that metadata discrepancy.
+The original upstream JAR is bundled unchanged through NeoForge Jar-in-Jar.
+Deep Diving uses the publicly published MIT terms and preserves this notice.
+The metadata discrepancy is retained here; no copyright holder was invented.
+
+----- Published license text -----
+
+The MIT License Copyright (c) <year> <copyright holders> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

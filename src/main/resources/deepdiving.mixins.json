@@ -15,7 +15,11 @@
     "OrbitMouseMixin",
     "TreadingModelMixin",
     "AcousticChannelMixin",
-    "AcousticSoundEngineMixin"
+    "AcousticSoundEngineMixin",
+    "LampShadowRegistryAccess",
+    "LampShadowResourceAccess",
+    "LampEntityShadowMixin",
+    "LampDebugMixin"
   ],
   "injectors": {
     "defaultRequire": 1
