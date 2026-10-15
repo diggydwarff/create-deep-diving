@@ -96,8 +96,6 @@ public final class DivingConfig {
 
     public static final ModConfigSpec.BooleanValue SEDIMENT_PARTICLES;
 
-    public static final ModConfigSpec.BooleanValue SEDIMENT_AVOID_DUPLICATES;
-
     public static final ModConfigSpec.IntValue SEDIMENT_PARTICLE_LIMIT;
 
     public static final ModConfigSpec.IntValue SEDIMENT_SPAWN_BUDGET;
@@ -441,8 +439,6 @@ public final class DivingConfig {
         builder.push("sediment");
         SEDIMENT_PARTICLES = builder.comment("Temporary particle plumes only. Does not change biome fog or shader packs.")
             .define("particles", true);
-        SEDIMENT_AVOID_DUPLICATES = builder.comment("Let standalone Murky Depths own sediment when installed on this client.")
-            .define("deferToMurkyDepths", true);
         SEDIMENT_PARTICLE_LIMIT = builder.defineInRange("particleLimit", 200, 0, 1000);
         SEDIMENT_SPAWN_BUDGET = builder.defineInRange("spawnAttemptsPerTick", 8, 0, 32);
         SEDIMENT_COLOR = builder.comment("Sediment RGB as a decimal integer; default is hexadecimal 97856A.")

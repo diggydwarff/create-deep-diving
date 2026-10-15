@@ -17,7 +17,6 @@ import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
@@ -37,8 +36,7 @@ public final class SedimentClouds {
 
     public static boolean enabled() {
         return Minecraft.getInstance().level != null && DivingConfig.CLIENT.isLoaded()
-            && SedimentRules.enabled() && DivingConfig.SEDIMENT_PARTICLES.get()
-            && !(DivingConfig.SEDIMENT_AVOID_DUPLICATES.get() && ModList.get().isLoaded("murkydepths"));
+            && SedimentRules.enabled() && DivingConfig.SEDIMENT_PARTICLES.get();
     }
 
     private static void updateLevel() {
