@@ -13,6 +13,12 @@ public final class LampMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
 
+        if (mixinClassName.contains(".sodium.")) {
+            var modList = FMLLoader.getLoadingModList();
+
+            return modList != null && modList.getMods().stream().anyMatch(mod -> mod.getModId().equals("sodium"));
+        }
+
         if (!mixinClassName.contains(".iris.")) {
             return true;
         }

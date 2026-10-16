@@ -45,7 +45,7 @@ public final class LampMaterialShader {
         return first >= 0 && source.indexOf(text, first + text.length()) < 0 ? first : -1;
     }
 
-    private static String helpers() {
+    static String helpers() {
         StringBuilder result = new StringBuilder(MARKER + "\n");
 
         for (int index = 0; index < 8; index++) {
@@ -56,15 +56,17 @@ public final class LampMaterialShader {
             result.append("uniform mat4 ddLampMatrix").append(index).append(";\n");
         }
 
-        try (var input = LampMaterialShader.class.getResourceAsStream(
-            "/assets/deepdiving/shaders/lighting/material.glsl")) {
-            if (input == null) {
-                throw new IOException("Missing lamp material shader");
-            }
+        for (String file : new String[]{"shadow_filter.glsl", "material.glsl"}) {
+            try (var input = LampMaterialShader.class.getResourceAsStream(
+                "/assets/deepdiving/shaders/lighting/" + file)) {
+                if (input == null) {
+                    throw new IOException("Missing lamp shader " + file);
+                }
 
-            result.append(new String(input.readAllBytes(), StandardCharsets.UTF_8));
-        } catch (IOException failure) {
-            throw new IllegalStateException("Deep Diving: cannot load material lighting", failure);
+                result.append(new String(input.readAllBytes(), StandardCharsets.UTF_8)).append('\n');
+            } catch (IOException failure) {
+                throw new IllegalStateException("Deep Diving: cannot load material lighting", failure);
+            }
         }
 
         result.append("\nvec3 ddMaterialLight(vec3 point, vec3 normal) {\n    vec3 light = vec3(0.0);\n");

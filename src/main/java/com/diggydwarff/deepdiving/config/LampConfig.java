@@ -30,6 +30,8 @@ public final class LampConfig {
 
     public static ModConfigSpec.DoubleValue TRANSITION;
 
+    public static ModConfigSpec.DoubleValue SHADOW_SOFTNESS;
+
     public static ModConfigSpec.IntValue NEARBY_LIMIT;
 
     public static ModConfigSpec.IntValue SHADOW_LIMIT;
@@ -54,6 +56,8 @@ public final class LampConfig {
             .defineInRange("customColor", 0xFFF0D5, 0, 0xFFFFFF);
         VOLUME = builder.defineInRange("volumetricIntensity", .7, 0, 2);
         TRANSITION = builder.defineInRange("transitionSeconds", .25, .05, 2);
+        SHADOW_SOFTNESS = builder.comment("Lamp shadow edge softness. Zero keeps crisp shadows; one is a small diffuse edge.")
+            .defineInRange("shadowSoftness", 1.0, 0, 3);
         NEARBY = builder.define("nearbyDivers", true);
         NEARBY_LIMIT = builder.defineInRange("nearbyLightLimit", 2, 0, 7);
         REDUCED = builder.comment("One shadowed lamp, shorter range and no volumetric ray marching.")

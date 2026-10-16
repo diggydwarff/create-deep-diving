@@ -28,15 +28,18 @@ public final class LampMaterialBridge {
 
     private static boolean active;
 
+    private static boolean shaderFrame;
+
     static void beginFrame() {
         active = false;
         lights = List.of();
     }
 
-    static void publish(List<Light> values, Vec3 eye, LampMedium medium, boolean wet) {
+    static void publish(List<Light> values, Vec3 eye, LampMedium medium, boolean wet, boolean shaders) {
         camera = eye;
         lights = List.copyOf(values);
         outsideWater = wet ? 1 : 0;
+        shaderFrame = shaders;
 
         if (!lights.isEmpty()) {
             mediumTexture = medium.texture();
@@ -53,7 +56,15 @@ public final class LampMaterialBridge {
     }
 
     public static int count() {
-        return active && LampConfig.ENABLED.get() && LampConfig.SHADERS.get() ? lights.size() : 0;
+        return active && LampConfig.ENABLED.get() && (!shaderFrame || LampConfig.SHADERS.get()) ? lights.size() : 0;
+    }
+
+    static boolean vanillaActive() {
+        return active && !shaderFrame;
+    }
+
+    public static double shadowSoftness() {
+        return LampConfig.REDUCED.get() ? 0 : LampConfig.SHADOW_SOFTNESS.get();
     }
 
     public static int shadowTexture() {

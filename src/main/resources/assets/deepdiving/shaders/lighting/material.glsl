@@ -6,6 +6,7 @@ uniform sampler3D ddLampMedium;
 uniform vec3 ddMediumOrigin;
 uniform vec3 ddMediumSize;
 uniform float ddOutsideWater;
+uniform float ddShadowSoftness;
 
 vec2 ddMediumAt(vec3 point) {
     vec3 cell = point - ddMediumOrigin;
@@ -30,12 +31,6 @@ float ddLampTransmission(vec3 origin, vec3 point) {
     return exp(-opticalDepth);
 }
 
-float ddShadowTap(vec3 samplePoint, int slot) {
-    vec2 tile = vec2(float(slot - (slot / 4) * 4), float(slot / 4));
-    vec2 local = clamp(samplePoint.xy, vec2(0.5 / 512.0), vec2(1.0 - 0.5 / 512.0));
-    return texture(ddLampShadow, vec3((tile + local) / vec2(4.0, 2.0), samplePoint.z));
-}
-
 float ddVisibility(vec3 point, vec3 normal, vec3 origin, mat4 matrix, float tangent, int slot) {
     float footprint = distance(point, origin) * tangent / 512.0;
     vec3 receiver = point + normal * (0.004 + min(0.018, footprint));
@@ -53,14 +48,19 @@ float ddVisibility(vec3 point, vec3 normal, vec3 origin, mat4 matrix, float tang
     vec3 dy = (vertical.xyz * clip.w - clip.xyz * vertical.w) / (clip.w * clip.w);
     vec3 plane = cross(dx, dy);
     vec2 gradient = abs(plane.z) > 0.00000001 ? clamp(-plane.xy / plane.z, vec2(-0.1), vec2(0.1)) : vec2(0.0);
-    vec3 xStep = vec3(0.85 / 512.0, 0.0, gradient.x * 0.85 / 512.0);
-    vec3 yStep = vec3(0.0, 0.85 / 512.0, gradient.y * 0.85 / 512.0);
-    float visible = ddShadowTap(samplePoint, slot) * 0.4;
-    visible += ddShadowTap(samplePoint + xStep, slot) * 0.15;
-    visible += ddShadowTap(samplePoint - xStep, slot) * 0.15;
-    visible += ddShadowTap(samplePoint + yStep, slot) * 0.15;
-    visible += ddShadowTap(samplePoint - yStep, slot) * 0.15;
-    return visible;
+    float distanceToLight = max(0.001, distance(receiver, origin));
+    vec3 nearer = mix(receiver, origin, min(0.35 / distanceToLight, 0.5));
+    vec4 nearClip = matrix * vec4(nearer - origin, 1.0);
+    float closeDepth = nearClip.z / nearClip.w * 0.5 + 0.5;
+
+    vec2 tile = vec2(float(slot - (slot / 4) * 4), float(slot / 4));
+    vec2 atlasSize = vec2(4.0, 2.0);
+    vec2 inset = vec2(0.5 / 512.0);
+    vec4 bounds = vec4((tile + inset) / atlasSize, (tile + 1.0 - inset) / atlasSize);
+    vec3 atlasPoint = vec3((tile + samplePoint.xy) / atlasSize, samplePoint.z);
+
+    return ddFilteredShadow(ddLampShadow, atlasPoint, vec2(1.0 / 512.0) / atlasSize,
+        gradient * atlasSize, closeDepth, ddShadowSoftness, bounds);
 }
 
 vec3 ddOneLamp(vec3 point, vec3 normal, int slot, vec4 position, vec4 forward,

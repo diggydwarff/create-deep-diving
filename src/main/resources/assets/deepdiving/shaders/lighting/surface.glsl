@@ -1,4 +1,5 @@
 uniform sampler2D SceneColorTex;
+uniform float ShadowSoftness;
 
 // The upstream reconstruction is declared below the injected helpers.
 vec3 reconstructWorld(vec2 texCoord, float depth);
@@ -47,8 +48,6 @@ float surfaceShadow(vec3 point, vec3 normal, float ndotl) {
         return 0.0;
     }
 
-    vec2 stepSize = ShadowTexel * 0.85;
-
     // Compare each tap with the receiver plane at that tap. A shared depth
     // reference falsely shadows sloping faces, even when nothing blocks them.
     vec3 axis = abs(normal.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
@@ -61,14 +60,14 @@ float surfaceShadow(vec3 point, vec3 normal, float ndotl) {
     vec2 gradient = abs(plane.z) > 0.00000001 ? -plane.xy / plane.z : vec2(0.0);
     gradient = clamp(gradient, vec2(-0.1), vec2(0.1));
 
-    vec3 horizontalStep = vec3(stepSize.x, 0.0, gradient.x * stepSize.x);
-    vec3 verticalStep = vec3(0.0, stepSize.y, gradient.y * stepSize.y);
-    float visible = texture(ShadowTex, samplePoint) * 0.4;
-    visible += texture(ShadowTex, samplePoint + horizontalStep) * 0.15;
-    visible += texture(ShadowTex, samplePoint - horizontalStep) * 0.15;
-    visible += texture(ShadowTex, samplePoint + verticalStep) * 0.15;
-    visible += texture(ShadowTex, samplePoint - verticalStep) * 0.15;
-    return visible;
+    float distanceToLight = max(0.001, distance(receiver, ShadowOrigin));
+    vec3 nearer = mix(receiver, ShadowOrigin, min(0.35 / distanceToLight, 0.5));
+    vec4 nearClip = LightViewProj * vec4(nearer - ShadowOrigin, 1.0);
+    float closeDepth = nearClip.z / nearClip.w * 0.5 + 0.5;
+    vec2 inset = ShadowTexel * 0.5;
+
+    return ddFilteredShadow(ShadowTex, samplePoint, ShadowTexel, gradient,
+        closeDepth, ShadowSoftness, vec4(inset, 1.0 - inset));
 }
 
 float luminance(vec3 color) {

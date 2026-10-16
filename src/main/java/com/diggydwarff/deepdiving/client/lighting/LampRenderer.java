@@ -90,12 +90,15 @@ public final class LampRenderer {
 
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) {
             LampMaterialBridge.beginFrame();
+            LampVanillaUniforms.beginFrame(event.getModelViewMatrix());
+
+            boolean shaders = LampShaderPipeline.active();
 
             if (!failed && minecraft.level != null && DivingConfig.CLIENT.isLoaded()
-                && LampConfig.ENABLED.get() && LampConfig.SHADERS.get()
-                && LampShaderPipeline.active() && LampIrisHooks.supportedPack()) {
+                && LampConfig.ENABLED.get()
+                && (!shaders || LampConfig.SHADERS.get() && LampIrisHooks.supportedPack())) {
                 try (LampGlState state = new LampGlState()) {
-                    prepareMaterials(event);
+                    prepareMaterials(event, shaders);
                 } catch (RuntimeException | LinkageError failure) {
                     LampMaterialBridge.beginFrame();
                     failed = true;
@@ -121,6 +124,7 @@ public final class LampRenderer {
 
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL && ready) {
             ready = false;
+            LampVanillaUniforms.endFrame();
 
             if (frames.isEmpty()) {
                 releaseShadows();
@@ -203,7 +207,7 @@ public final class LampRenderer {
         }
     }
 
-    private static void prepareMaterials(RenderLevelStageEvent event) {
+    private static void prepareMaterials(RenderLevelStageEvent event, boolean shaders) {
         Minecraft minecraft = Minecraft.getInstance();
 
         Vec3 camera = event.getCamera().getPosition();
@@ -231,7 +235,7 @@ public final class LampRenderer {
         boolean wet = AmbienceWater.contains(minecraft.level, camera)
             || frames.stream().anyMatch(frame -> AmbienceWater.contains(minecraft.level, frame.source().lightPos()));
 
-        LampMaterialBridge.publish(lights, camera, MEDIUM, wet);
+        LampMaterialBridge.publish(lights, camera, MEDIUM, wet, shaders);
     }
 
     private static void updateShadows() {
@@ -332,7 +336,8 @@ public final class LampRenderer {
         scalar("ApertureRadius", source.apertureRadius());
         scalar("TanOuter", (float) Math.tan(Math.toRadians(source.outerAngle())));
         scalar("TanInner", (float) Math.tan(Math.toRadians(source.innerAngle())));
-        scalar("SurfaceIntensity", input.shaders() && LampMaterialBridge.active() ? 0 : source.surfaceIntensity());
+        scalar("SurfaceIntensity", LampMaterialBridge.active() ? 0 : source.surfaceIntensity());
+        scalar("ShadowSoftness", (float) LampMaterialBridge.shadowSoftness());
         scalar("VolumeIntensity", source.volumeIntensity());
         float depthFog = input.shaders() ? LampShaderPipeline.depthFogDensity() : 1;
 
@@ -422,6 +427,8 @@ public final class LampRenderer {
 
         String surface = resource(LampRenderer.class, "/assets/deepdiving/shaders/lighting/surface.glsl");
 
+        String shadows = resource(LampRenderer.class, "/assets/deepdiving/shaders/lighting/shadow_filter.glsl");
+
         int vertexShader = compile(GL20.GL_VERTEX_SHADER, vertex);
 
         int fragmentShader = 0;
@@ -429,7 +436,8 @@ public final class LampRenderer {
         int candidate = 0;
 
         try {
-            fragmentShader = compile(GL20.GL_FRAGMENT_SHADER, LampShaderSource.adapt(upstream, medium + "\n" + surface));
+            fragmentShader = compile(GL20.GL_FRAGMENT_SHADER,
+                LampShaderSource.adapt(upstream, medium + "\n" + shadows + "\n" + surface));
             candidate = GL20.glCreateProgram();
             GL20.glAttachShader(candidate, vertexShader);
             GL20.glAttachShader(candidate, fragmentShader);
@@ -510,6 +518,7 @@ public final class LampRenderer {
         releaseShadows();
         MEDIUM.close();
         LampMaterialBridge.reset();
+        LampVanillaUniforms.reset();
         if (program != 0) {
             GL20.glDeleteProgram(program);
         }

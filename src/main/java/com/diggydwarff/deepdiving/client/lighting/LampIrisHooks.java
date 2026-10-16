@@ -91,6 +91,9 @@ public final class LampIrisHooks {
             api.getMethod("uniform1f", frequency, String.class, DoubleSupplier.class)
                 .invoke(holder, frame, "ddOutsideWater", (DoubleSupplier) LampMaterialBridge::outsideWater);
 
+            api.getMethod("uniform1f", frequency, String.class, DoubleSupplier.class)
+                .invoke(holder, frame, "ddShadowSoftness", (DoubleSupplier) LampMaterialBridge::shadowSoftness);
+
             for (int index = 0; index < 8; index++) {
                 final int slot = index;
 
