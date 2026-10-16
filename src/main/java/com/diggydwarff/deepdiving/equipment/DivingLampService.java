@@ -6,7 +6,6 @@ import com.diggydwarff.deepdiving.network.LampState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
@@ -40,10 +39,8 @@ public final class DivingLampService {
     public static void update(ServerPlayer player) {
         LampState state = state(player);
 
-        if (state.active()) {
-            clearLegacyVision(player);
-        }
-
+        // Old lamp night vision expires on its own. Matching its duration and
+        // visibility flags cannot prove ownership of another mod's potion effect.
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, state);
     }
 
@@ -83,7 +80,18 @@ public final class DivingLampService {
 
             // Notifications may arrive away from the server thread. Inspect and
             // mutate the saved blocks only after returning to that thread.
-            level.getServer().execute(() -> CLEANUP.addLast(new Cleanup(level, position)));
+            level.getServer().execute(() -> {
+                // Most chunks never contained an old light. Do not build a large
+                // migration backlog during exploration or world pregeneration.
+                // Use the event's chunk: it may not be in the live lookup yet.
+                // The migration tick checks that it is still loaded before use.
+                for (var section : chunk.getSections()) {
+                    if (section.maybeHas(state -> state.is(DeepDiving.LAMP_LIGHT.get()))) {
+                        CLEANUP.addLast(new Cleanup(level, position));
+                        return;
+                    }
+                }
+            });
         }
     }
 
@@ -144,16 +152,6 @@ public final class DivingLampService {
     @SubscribeEvent
     public static void stopped(ServerStoppedEvent event) {
         CLEANUP.clear();
-    }
-
-    private static void clearLegacyVision(ServerPlayer player) {
-        var effect = player.getEffect(MobEffects.NIGHT_VISION);
-
-        if (effect != null && effect.getAmplifier() == 0 && effect.getDuration() > 0
-            && effect.getDuration() <= 240 && !effect.isAmbient()
-            && !effect.isVisible() && !effect.showIcon()) {
-            player.removeEffect(MobEffects.NIGHT_VISION);
-        }
     }
 
     private static final class Cleanup {

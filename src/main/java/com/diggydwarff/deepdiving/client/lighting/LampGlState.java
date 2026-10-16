@@ -51,11 +51,11 @@ final class LampGlState implements AutoCloseable {
 
     private final boolean[] enabled = new boolean[capabilities.length];
 
-    private final int[] textures = new int[4];
+    private final int[] textures = new int[5];
 
-    private final int[] volumes = new int[4];
+    private final int[] volumes = new int[5];
 
-    private final int[] samplers = new int[4];
+    private final int[] samplers = new int[5];
 
     private final ShaderInstance shader = RenderSystem.getShader();
 

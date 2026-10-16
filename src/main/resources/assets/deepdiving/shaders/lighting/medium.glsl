@@ -44,16 +44,20 @@ float lampTransmission(vec3 start, vec3 finish) {
     return exp(-waterPath(start, finish, 8).x);
 }
 
+float waterFog(float wetDistance) {
+    float end = max(0.01, WaterFogEnd);
+    float start = clamp(WaterFogStart, 0.0, max(0.0, end - 0.01));
+    return 1.0 - smoothstep(start, end, wetDistance);
+}
+
 float viewTransmission(vec3 point) {
     vec2 path = waterPath(CameraPos, point, 8);
-    float fog = 1.0 - smoothstep(max(0.0, WaterFogStart), max(1.0, WaterFogEnd), path.y);
-    return exp(-path.x) * fog;
+    return exp(-path.x) * waterFog(path.y);
 }
 
 // Volume marching already samples the beam repeatedly. Fewer path samples keep
 // that work bounded without reducing the surface/air-pocket sampling accuracy.
 float volumeTransmission(vec3 point) {
     vec2 path = waterPath(CameraPos, point, 4);
-    float fog = 1.0 - smoothstep(max(0.0, WaterFogStart), max(1.0, WaterFogEnd), path.y);
-    return exp(-path.x - waterPath(LightPos, point, 4).x) * fog;
+    return exp(-path.x - waterPath(LightPos, point, 4).x) * waterFog(path.y);
 }

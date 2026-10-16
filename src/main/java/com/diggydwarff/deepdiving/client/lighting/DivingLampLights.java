@@ -2,6 +2,7 @@ package com.diggydwarff.deepdiving.client.lighting;
 
 import com.diggydwarff.deepdiving.config.LampConfig;
 import com.BreadRes.illuminationapi.client.ClientLightSource;
+import com.diggydwarff.deepdiving.DeepDiving;
 import com.diggydwarff.deepdiving.client.sediment.SedimentClouds;
 import com.diggydwarff.deepdiving.config.DivingConfig;
 import com.diggydwarff.deepdiving.network.LampState;
@@ -9,6 +10,7 @@ import com.diggydwarff.deepdiving.network.LampState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -149,13 +151,21 @@ public final class DivingLampLights {
 
         Vec3 carried = diver.getPosition(partialTick).add(0, diver.getBbHeight() * .55, 0);
 
-        Vec3 origin = carried.lerp(eye.add(0, -.08, 0), held).add(direction.scale(.12));
+        Vec3 hand = heldOrigin(diver, eye, partialTick);
+
+        Vec3 origin = carried.lerp(hand, held);
 
         var hit = world.clip(new ClipContext(eye, origin, ClipContext.Block.COLLIDER,
             ClipContext.Fluid.NONE, diver));
 
         if (hit.getType() != HitResult.Type.MISS) {
-            origin = eye;
+            // Pull the emitter back to our side of the wall, without letting it
+            // cross the collision surface or snapping it into the player's face.
+            Vec3 offset = origin.subtract(eye);
+
+            double distance = Math.max(0, eye.distanceTo(hit.getLocation()) - .06);
+
+            origin = eye.add(offset.normalize().scale(distance));
         }
 
         double range = 4 + (LampConfig.RANGE.get() - 4) * held;
@@ -163,6 +173,19 @@ public final class DivingLampLights {
         if (LampConfig.REDUCED.get()) {
             range = Math.min(range, 12);
         }
+
+        // The light comes from the hand but converges on the view's target.
+        // A parallel hand beam would miss the crosshair at short distances.
+        Vec3 target = eye.add(diver.getViewVector(partialTick).scale(range));
+
+        var aimHit = world.clip(new ClipContext(eye, target, ClipContext.Block.COLLIDER,
+            ClipContext.Fluid.NONE, diver));
+
+        if (aimHit.getType() != HitResult.Type.MISS) {
+            target = aimHit.getLocation();
+        }
+
+        direction = direction.lerp(target.subtract(origin).normalize(), held).normalize();
 
         // Sample the existing transient sediment field; no second cloud simulation.
         double sediment = 0;
@@ -185,16 +208,41 @@ public final class DivingLampLights {
 
         Vector3f up = new Vector3f(right).cross(forward).normalize();
 
-        float brightness = (float) (LampConfig.BRIGHTNESS.get() * state.weight * (.075 + .145 * held));
+        float brightness = (float) (LampConfig.BRIGHTNESS.get() * state.weight * (.075 + .265 * held));
 
-        float volume = LampConfig.REDUCED.get() ? 0 : (float) (LampConfig.VOLUME.get() * .012 * state.weight);
+        float volume = LampConfig.REDUCED.get() ? 0 : (float) (LampConfig.VOLUME.get() * .006 * state.weight);
 
         ClientLightSource source = new ClientLightSource(state.key, world, null,
             origin, origin, origin.add(direction.scale(.03)), forward, right, up,
-            (float) range, .03f, .035f, width, width * .45f,
+            (float) range, .03f, .035f, width, width * .60f,
             LampConfig.color(), brightness, volume, true, true, "Deep Diving lamp", null);
 
         return new Frame(diver, source);
+    }
+
+    private static Vec3 heldOrigin(Player diver, Vec3 eye, float partialTick) {
+        boolean offHand = !diver.getMainHandItem().is(DeepDiving.LAMP.get())
+            && diver.getOffhandItem().is(DeepDiving.LAMP.get());
+
+        HumanoidArm arm = offHand ? diver.getMainArm().getOpposite() : diver.getMainArm();
+
+        Vec3 forward = diver.getViewVector(partialTick).normalize();
+
+        double yaw = Math.toRadians(diver.getViewYRot(partialTick));
+
+        Vec3 right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
+
+        Vec3 up = right.cross(forward).normalize();
+
+        double side = arm == HumanoidArm.RIGHT ? .32 : -.32;
+
+        // Keep the emitter below and to the side of the face. Swimming extends
+        // the arms forward, so the lamp moves forward with that pose.
+        double lower = diver.isVisuallySwimming() ? .12 : .40;
+
+        double reach = diver.isVisuallySwimming() ? .48 : .30;
+
+        return eye.add(right.scale(side)).add(up.scale(-lower)).add(forward.scale(reach));
     }
 
     /** Local particle light only; does not alter the world light map or sunlight. */

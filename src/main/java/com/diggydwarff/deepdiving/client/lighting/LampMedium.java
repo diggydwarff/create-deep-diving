@@ -17,7 +17,8 @@ import org.lwjgl.opengl.GL30;
 final class LampMedium {
     static final int X = 41;
 
-    static final int Y = 25;
+    // Cover a full default-range beam vertically as well as horizontally.
+    static final int Y = 41;
 
     static final int Z = 41;
 

@@ -1,0 +1,269 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "steel": "create:block/industrial_iron_block",
+    "steel_top": "create:block/industrial_iron_block_top",
+    "brass": "create:block/brass_block",
+    "he": "minecraft:block/purple_terracotta",
+    "particle": "create:block/industrial_iron_block"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        3,
+        5
+      ],
+      "to": [
+        11,
+        12,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#steel",
+          "uv": [
+            5.0,
+            3.5,
+            11.0,
+            12.5
+          ]
+        },
+        "south": {
+          "texture": "#steel",
+          "uv": [
+            5.0,
+            3.5,
+            11.0,
+            12.5
+          ]
+        },
+        "east": {
+          "texture": "#steel",
+          "uv": [
+            5.0,
+            3.5,
+            11.0,
+            12.5
+          ]
+        },
+        "west": {
+          "texture": "#steel",
+          "uv": [
+            5.0,
+            3.5,
+            11.0,
+            12.5
+          ]
+        },
+        "up": {
+          "texture": "#steel_top",
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            11.0
+          ]
+        },
+        "down": {
+          "texture": "#steel_top",
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            11.0
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        4.975,
+        6,
+        4
+      ],
+      "to": [
+        11.025,
+        9,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#he",
+          "uv": [
+            4.975,
+            6.5,
+            11.025,
+            9.5
+          ]
+        },
+        "south": {
+          "texture": "#he",
+          "uv": [
+            4.975,
+            6.5,
+            11.025,
+            9.5
+          ]
+        },
+        "east": {
+          "texture": "#he",
+          "uv": [
+            4.0,
+            6.5,
+            12.0,
+            9.5
+          ]
+        },
+        "west": {
+          "texture": "#he",
+          "uv": [
+            4.0,
+            6.5,
+            12.0,
+            9.5
+          ]
+        },
+        "up": {
+          "texture": "#he",
+          "uv": [
+            4.975,
+            4.0,
+            11.025,
+            12.0
+          ]
+        },
+        "down": {
+          "texture": "#he",
+          "uv": [
+            4.975,
+            4.0,
+            11.025,
+            12.0
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        12,
+        6
+      ],
+      "to": [
+        10,
+        14,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brass",
+          "uv": [
+            6.0,
+            7.0,
+            10.0,
+            9.0
+          ]
+        },
+        "south": {
+          "texture": "#brass",
+          "uv": [
+            6.0,
+            7.0,
+            10.0,
+            9.0
+          ]
+        },
+        "east": {
+          "texture": "#brass",
+          "uv": [
+            6.0,
+            7.0,
+            10.0,
+            9.0
+          ]
+        },
+        "west": {
+          "texture": "#brass",
+          "uv": [
+            6.0,
+            7.0,
+            10.0,
+            9.0
+          ]
+        },
+        "up": {
+          "texture": "#brass",
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ]
+        },
+        "down": {
+          "texture": "#brass",
+          "uv": [
+            6.0,
+            6.0,
+            10.0,
+            10.0
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        20,
+        -35,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.9,
+        0.9,
+        0.9
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        25
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
+  }
+}

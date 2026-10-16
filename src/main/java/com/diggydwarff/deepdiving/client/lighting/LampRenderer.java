@@ -1,6 +1,7 @@
 package com.diggydwarff.deepdiving.client.lighting;
 
 import com.diggydwarff.deepdiving.config.LampConfig;
+import com.diggydwarff.deepdiving.config.DivingConfig;
 import com.BreadRes.illuminationapi.client.LightShadowMap;
 import com.diggydwarff.deepdiving.DeepDiving;
 import com.diggydwarff.deepdiving.client.ambience.AmbienceWater;
@@ -31,12 +32,14 @@ import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** One terrain/volumetric pass, after Iris composition and before vanilla hands/HUD. */
+/** Prepare material lights before terrain; finish vanilla lighting and beam haze after composition. */
 @EventBusSubscriber(modid = DeepDiving.MOD_ID, value = Dist.CLIENT)
 public final class LampRenderer {
     private static final LampMedium MEDIUM = new LampMedium();
@@ -55,6 +58,12 @@ public final class LampRenderer {
 
     private static int opaqueDepth;
 
+    private static int sceneColor;
+
+    private static int colorWidth;
+
+    private static int colorHeight;
+
     private static int depthWidth;
 
     private static int depthHeight;
@@ -64,6 +73,8 @@ public final class LampRenderer {
     private static float fogEnd = 96;
 
     private static boolean ready;
+
+    private static long shadowRevision;
 
     private static boolean failed;
 
@@ -77,8 +88,26 @@ public final class LampRenderer {
             return;
         }
 
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) {
+            LampMaterialBridge.beginFrame();
+
+            if (!failed && minecraft.level != null && DivingConfig.CLIENT.isLoaded()
+                && LampConfig.ENABLED.get() && LampConfig.SHADERS.get()
+                && LampShaderPipeline.active() && LampIrisHooks.supportedPack()) {
+                try (LampGlState state = new LampGlState()) {
+                    prepareMaterials(event);
+                } catch (RuntimeException | LinkageError failure) {
+                    LampMaterialBridge.beginFrame();
+                    failed = true;
+                    LogUtils.getLogger().error("Deep Diving: material lamp preparation failed; reload resources to retry.", failure);
+                }
+            }
+        }
+
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
-            frames = DivingLampLights.collect(event.getPartialTick().getGameTimeDeltaPartialTick(false));
+            if (!LampMaterialBridge.active()) {
+                frames = DivingLampLights.collect(event.getPartialTick().getGameTimeDeltaPartialTick(false));
+            }
             ready = true;
             fogStart = RenderSystem.getShaderFogStart();
             fogEnd = RenderSystem.getShaderFogEnd();
@@ -143,19 +172,69 @@ public final class LampRenderer {
 
         var input = LampShaderPipeline.inputs(opaqueDepth, event.getModelViewMatrix(), event.getProjectionMatrix());
 
-        shaderUnavailable = input == null;
+        shaderUnavailable = input == null || input.depth() <= 0;
 
-        if (input == null || input.depth() <= 0) {
+        if (shaderUnavailable) {
+            if (!LampMaterialBridge.active()) releaseShadows();
             return;
         }
 
         ensureProgram();
 
+        // The material path already lit the original textures. The fallback
+        // samples a separate image to avoid framebuffer feedback between lamps.
+        if (!LampMaterialBridge.active()) copySceneColor();
+
         Vec3 camera = event.getCamera().getPosition();
 
-        GL13.glActiveTexture(GL13.GL_TEXTURE0 + 2);
-        MEDIUM.update(minecraft.level, camera);
+        if (!LampMaterialBridge.active()) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + 2);
+            MEDIUM.update(minecraft.level, camera);
+            updateShadows();
+        }
 
+        Matrix4f inverse = new Matrix4f(input.projection()).mul(input.view()).invert();
+
+        for (DivingLampLights.Frame frame : frames) {
+            Shadow shadow = SHADOWS.get(frame.owner().getUUID());
+
+            // Never substitute an unshadowed lamp while its map is pending.
+            if (shadow.data != null) draw(frame, shadow, input, inverse, camera);
+        }
+    }
+
+    private static void prepareMaterials(RenderLevelStageEvent event) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        Vec3 camera = event.getCamera().getPosition();
+
+        frames = DivingLampLights.collect(event.getPartialTick().getGameTimeDeltaPartialTick(false));
+
+        if (!frames.isEmpty()) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + 2);
+            MEDIUM.update(minecraft.level, camera);
+        }
+
+        updateShadows();
+
+        List<LampMaterialBridge.Light> lights = new ArrayList<>();
+
+        for (DivingLampLights.Frame frame : frames) {
+            Shadow shadow = SHADOWS.get(frame.owner().getUUID());
+
+            if (shadow.data != null) {
+                lights.add(new LampMaterialBridge.Light(frame.source(), shadow.data.textureId(),
+                    new Matrix4f(shadow.data.lightViewProj()), shadow.origin, shadow.revision));
+            }
+        }
+
+        boolean wet = AmbienceWater.contains(minecraft.level, camera)
+            || frames.stream().anyMatch(frame -> AmbienceWater.contains(minecraft.level, frame.source().lightPos()));
+
+        LampMaterialBridge.publish(lights, camera, MEDIUM, wet);
+    }
+
+    private static void updateShadows() {
         // Keys are private to this renderer, so other API consumers remain untouched.
         SHADOWS.entrySet().removeIf(entry -> {
             if (frames.stream().noneMatch(frame -> frame.owner().getUUID().equals(entry.getKey()))) {
@@ -165,18 +244,26 @@ public final class LampRenderer {
             return false;
         });
 
-        Matrix4f inverse = new Matrix4f(input.projection()).mul(input.view()).invert();
-
-        int updates = 0;
-
         long now = System.nanoTime();
 
         int budget = LampConfig.REDUCED.get() ? 1 : LampConfig.SHADOW_UPDATES.get();
 
-        for (DivingLampLights.Frame frame : frames) {
+        // Admission still favors the local lamp. Refresh the oldest due maps
+        // first so a third diver cannot starve when the frame budget is tight.
+        List<DivingLampLights.Frame> pending = new ArrayList<>(frames);
+
+        for (DivingLampLights.Frame frame : pending) {
+            SHADOWS.computeIfAbsent(frame.owner().getUUID(), ignored -> new Shadow(frame.source().cacheKey()));
+        }
+
+        pending.sort(Comparator.comparingLong(frame -> SHADOWS.get(frame.owner().getUUID()).nextUpdate));
+
+        int updates = 0;
+
+        for (DivingLampLights.Frame frame : pending) {
             var source = frame.source();
 
-            Shadow shadow = SHADOWS.computeIfAbsent(frame.owner().getUUID(), ignored -> new Shadow(source.cacheKey()));
+            Shadow shadow = SHADOWS.get(frame.owner().getUUID());
 
             if (now >= shadow.nextUpdate && updates < budget) {
                 castingOwner = frame.owner();
@@ -185,20 +272,13 @@ public final class LampRenderer {
                     shadow.data = LightShadowMap.get(source, source.lightPos(), source.forward(), source.up(),
                         source.range() + source.beamStart(), source.outerAngle(), source.beamStart());
                     shadow.origin = source.lightPos();
+                    shadow.revision = ++shadowRevision;
                     shadow.nextUpdate = now + 1_000_000_000L / LampConfig.SHADOW_RATE.get();
                     updates++;
                 } finally {
                     castingOwner = null;
                 }
             }
-
-            // A newly admitted lamp waits for a real shadow map. We never draw an
-            // unshadowed substitute that can shine through a wall under load.
-            if (shadow.data == null) {
-                continue;
-            }
-
-            draw(frame, shadow, input, inverse, camera);
         }
     }
 
@@ -224,6 +304,7 @@ public final class LampRenderer {
         texture(0, input.depth(), "DepthTex");
         texture(1, shadow.data.textureId(), "ShadowTex");
         texture(3, input.frontDepth(), "FrontDepthTex");
+        texture(4, sceneColor, "SceneColorTex");
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + 2);
         GL33.glBindSampler(2, 0);
         GL11.glBindTexture(GL12.GL_TEXTURE_3D, MEDIUM.texture());
@@ -251,17 +332,19 @@ public final class LampRenderer {
         scalar("ApertureRadius", source.apertureRadius());
         scalar("TanOuter", (float) Math.tan(Math.toRadians(source.outerAngle())));
         scalar("TanInner", (float) Math.tan(Math.toRadians(source.innerAngle())));
-        scalar("SurfaceIntensity", source.surfaceIntensity());
+        scalar("SurfaceIntensity", input.shaders() && LampMaterialBridge.active() ? 0 : source.surfaceIntensity());
         scalar("VolumeIntensity", source.volumeIntensity());
         float depthFog = input.shaders() ? LampShaderPipeline.depthFogDensity() : 1;
 
-        scalar("WaterExtinction", .025f * depthFog);
+        // Depth darkness belongs to the existing fog/ambient renderer. Modest
+        // clear-water absorption keeps this lamp closer to Minecraft block light.
+        scalar("WaterExtinction", .012f);
 
         boolean wet = AmbienceWater.contains(Minecraft.getInstance().level, camera);
 
         float end = wet && Float.isFinite(fogEnd) && fogEnd > 1 ? Math.min(96, fogEnd) : 96;
 
-        scalar("WaterFogStart", wet && Float.isFinite(fogStart) ? Math.max(0, fogStart) : 0);
+        scalar("WaterFogStart", wet && Float.isFinite(fogStart) ? Math.max(0, fogStart) / depthFog : 0);
         scalar("WaterFogEnd", end / depthFog);
         scalar("OutsideWater", wet || AmbienceWater.contains(Minecraft.getInstance().level, source.lightPos()) ? 1 : 0);
         scalar("MaskHand", input.shaders() ? 1 : 0);
@@ -274,6 +357,34 @@ public final class LampRenderer {
         GL33.glBindSampler(unit, 0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
         GL20.glUniform1i(uniform(name), unit);
+    }
+
+    private static void copySceneColor() {
+        var target = Minecraft.getInstance().getMainRenderTarget();
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + 4);
+        GL33.glBindSampler(4, 0);
+
+        if (sceneColor == 0) {
+            sceneColor = GL11.glGenTextures();
+        }
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, sceneColor);
+
+        if (colorWidth != target.width || colorHeight != target.height) {
+            colorWidth = target.width;
+            colorHeight = target.height;
+
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8,
+                colorWidth, colorHeight, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0L);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        }
+
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, target.frameBufferId);
+        GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, 0, 0, colorWidth, colorHeight);
     }
 
     private static int uniform(String name) {
@@ -309,6 +420,8 @@ public final class LampRenderer {
 
         String medium = resource(LampRenderer.class, "/assets/deepdiving/shaders/lighting/medium.glsl");
 
+        String surface = resource(LampRenderer.class, "/assets/deepdiving/shaders/lighting/surface.glsl");
+
         int vertexShader = compile(GL20.GL_VERTEX_SHADER, vertex);
 
         int fragmentShader = 0;
@@ -316,7 +429,7 @@ public final class LampRenderer {
         int candidate = 0;
 
         try {
-            fragmentShader = compile(GL20.GL_FRAGMENT_SHADER, LampShaderSource.adapt(upstream, medium));
+            fragmentShader = compile(GL20.GL_FRAGMENT_SHADER, LampShaderSource.adapt(upstream, medium + "\n" + surface));
             candidate = GL20.glCreateProgram();
             GL20.glAttachShader(candidate, vertexShader);
             GL20.glAttachShader(candidate, fragmentShader);
@@ -396,6 +509,7 @@ public final class LampRenderer {
     public static void reset() {
         releaseShadows();
         MEDIUM.close();
+        LampMaterialBridge.reset();
         if (program != 0) {
             GL20.glDeleteProgram(program);
         }
@@ -405,9 +519,15 @@ public final class LampRenderer {
         if (opaqueDepth != 0) {
             GL11.glDeleteTextures(opaqueDepth);
         }
+        if (sceneColor != 0) {
+            GL11.glDeleteTextures(sceneColor);
+        }
         program = 0;
         vao = 0;
         opaqueDepth = 0;
+        sceneColor = 0;
+        colorWidth = 0;
+        colorHeight = 0;
         depthWidth = 0;
         depthHeight = 0;
         frames = List.of();
@@ -425,6 +545,8 @@ public final class LampRenderer {
         private Vec3 origin;
 
         private long nextUpdate;
+
+        private long revision;
 
         private Shadow(Object key) {
             this.key = key;

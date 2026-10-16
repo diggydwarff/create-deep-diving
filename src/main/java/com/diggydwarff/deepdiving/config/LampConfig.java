@@ -58,7 +58,7 @@ public final class LampConfig {
         NEARBY_LIMIT = builder.defineInRange("nearbyLightLimit", 2, 0, 7);
         REDUCED = builder.comment("One shadowed lamp, shorter range and no volumetric ray marching.")
             .define("reducedEffects", false);
-        SHADERS = builder.comment("Use the Iris depth-buffer bridge with shader packs.",
+        SHADERS = builder.comment("Use the Iris material-lighting and depth-buffer bridges with shader packs.",
             "Complementary/Euphoria are integration targets; in-game compatibility is not yet certified.")
             .define("shaderLighting", true);
         ENTITY_SHADOWS = builder.define("entityShadows", true);

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " C ",
+    "PSP",
+    " B "
+  ],
+  "key": {
+    "C": {
+      "item": "create:copper_casing"
+    },
+    "P": {
+      "item": "create:mechanical_pump"
+    },
+    "S": {
+      "item": "create:shaft"
+    },
+    "B": {
+      "item": "create:brass_ingot"
+    }
+  },
+  "result": {
+    "id": "deepdiving:gas_compressor",
+    "count": 1
+  }
+}

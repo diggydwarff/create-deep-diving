@@ -112,6 +112,13 @@ if (project.hasProperty('qa')) {
 
     neoForge.runs.server.systemProperty 'deepdiving.qa', 'true'
 
+    // A failed startup must never pass using a report left by an earlier run.
+    tasks.named('runServer') {
+        doFirst {
+            delete layout.projectDirectory.file('run/server/qa-results.txt')
+        }
+    }
+
     if (project.hasProperty('creativeQa')) {
         neoForge.runs.server.systemProperty 'deepdiving.creativeQa', 'true'
     }

@@ -19,9 +19,14 @@
     "LampShadowRegistryAccess",
     "LampShadowResourceAccess",
     "LampEntityShadowMixin",
-    "LampDebugMixin"
+    "LampDebugMixin",
+    "iris.LampProgramSourceMixin",
+    "iris.LampUniformsMixin",
+    "iris.LampSamplersMixin",
+    "iris.LampPackLoadMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "plugin": "com.diggydwarff.deepdiving.mixin.LampMixinPlugin"
 }
