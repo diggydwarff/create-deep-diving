@@ -127,18 +127,24 @@ public final class TreadingAnimation {
             return;
         }
 
-        float strength = Mth.lerp(Mth.clamp(age - player.tickCount, 0, 1), pose.previous, pose.current);
+        float partial = Mth.clamp(age - player.tickCount, 0, 1);
+
+        float strength = Mth.lerp(partial, pose.previous, pose.current);
 
         if (strength <= 0) {
             return;
         }
 
-        var stroke = TreadingMotion.stroke(age + (player.getUUID().hashCode() & 63));
+        // First-person hand rendering can pass age=0. Use the player's clock
+        // there too, so switching render paths cannot reset the idle stroke.
+        double clock = player.tickCount + partial + (player.getUUID().hashCode() & 63);
 
-        model.leftLeg.xRot = Mth.lerp(strength, model.leftLeg.xRot, stroke.kick());
-        model.rightLeg.xRot = Mth.lerp(strength, model.rightLeg.xRot, -stroke.kick());
-        model.leftLeg.zRot = Mth.lerp(strength, model.leftLeg.zRot, .035f);
-        model.rightLeg.zRot = Mth.lerp(strength, model.rightLeg.zRot, -.035f);
+        var stroke = TreadingMotion.stroke(clock);
+
+        model.leftLeg.xRot = TreadingMotion.blendAngle(strength, model.leftLeg.xRot, stroke.kick());
+        model.rightLeg.xRot = TreadingMotion.blendAngle(strength, model.rightLeg.xRot, -stroke.kick());
+        model.leftLeg.zRot = TreadingMotion.blendAngle(strength, model.leftLeg.zRot, .035f);
+        model.rightLeg.zRot = TreadingMotion.blendAngle(strength, model.rightLeg.zRot, -.035f);
 
         if (player.isUsingItem() || player.swinging || model.attackTime > 0) {
             return;
@@ -146,27 +152,31 @@ public final class TreadingAnimation {
 
         boolean leftMain = player.getMainArm() == HumanoidArm.LEFT;
 
+        float swimming = player.getSwimAmount(partial);
+
         if ((leftMain ? player.getMainHandItem() : player.getOffhandItem()).isEmpty()
             && model.leftArmPose == HumanoidModel.ArmPose.EMPTY) {
-            arm(model.leftArm, strength, player.isSwimming(), stroke, 1);
+            arm(model.leftArm, strength, swimming, stroke, 1);
         }
 
         if ((leftMain ? player.getOffhandItem() : player.getMainHandItem()).isEmpty()
             && model.rightArmPose == HumanoidModel.ArmPose.EMPTY) {
-            arm(model.rightArm, strength, player.isSwimming(), stroke, -1);
+            arm(model.rightArm, strength, swimming, stroke, -1);
         }
     }
 
     private static void arm(
         ModelPart arm,
         float strength,
-        boolean swimming,
+        float swimming,
         TreadingMotion.Stroke stroke,
         int side
     ) {
-        arm.xRot = Mth.lerp(strength, arm.xRot, (swimming ? .1f : -.4f) + stroke.sweep() * side);
-        arm.yRot = Mth.lerp(strength, arm.yRot, stroke.sweep() * side);
-        arm.zRot = Mth.lerp(strength, arm.zRot, stroke.spread() * side);
+        float pitch = Mth.lerp(swimming, -.4f, .1f) + stroke.sweep() * side;
+
+        arm.xRot = TreadingMotion.blendAngle(strength, arm.xRot, pitch);
+        arm.yRot = TreadingMotion.blendAngle(strength, arm.yRot, stroke.sweep() * side);
+        arm.zRot = TreadingMotion.blendAngle(strength, arm.zRot, stroke.spread() * side);
     }
 
     private TreadingAnimation() {}

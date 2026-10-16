@@ -21,11 +21,33 @@ public final class TreadingMotion {
             return 0;
         }
 
-        return (float) Math.clamp(1 - Math.max(0, horizontalSpeed) / .04, 0, 1);
+        // Passive buoyancy and small network corrections are not swim input.
+        // Keep the full resting pose until the player is actually travelling.
+        double movement = Math.max(0, Math.min(1, (horizontalSpeed - .02) / .06));
+
+        return (float) (1 - movement * movement * (3 - 2 * movement));
     }
 
     public static float approach(float previous, float target) {
-        return Math.clamp(previous + Math.clamp(target - previous, -.125f, .125f), 0, 1);
+        float step = Math.max(-.125f, Math.min(.125f, target - previous));
+
+        return Math.max(0, Math.min(1, previous + step));
+    }
+
+    /** Vanilla swimming can cross the same angle at either end of a full turn. */
+    public static float blendAngle(float weight, float current, float target) {
+        float turn = (float) (Math.PI * 2);
+
+        float difference = (target - current) % turn;
+
+        if (difference > Math.PI) {
+            difference -= turn;
+        } else if (difference < -Math.PI) {
+            difference += turn;
+        }
+
+        // A normal lerp would take the long route at the wrap and jerk the arm.
+        return current + difference * weight;
     }
 
     private TreadingMotion() {}
