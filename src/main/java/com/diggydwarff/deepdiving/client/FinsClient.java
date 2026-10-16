@@ -47,7 +47,7 @@ public final class FinsClient {
 
         if (mc.player == null
             || !FinsService.eligible(mc.player)
-            || ClientRegistration.snapshot != null
+            || DiverService.active(mc.player) && ClientRegistration.snapshot != null
                 && (ClientRegistration.snapshot.warnings() & DiverService.BLACKOUT) != 0) {
             swimming = null;
             sentFlags = -1;

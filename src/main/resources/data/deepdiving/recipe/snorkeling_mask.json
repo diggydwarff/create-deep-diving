@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "L L",
+    "GGK",
+    " CK"
+  ],
+  "key": {
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "deepdiving:snorkeling_mask",
+    "count": 1
+  }
+}

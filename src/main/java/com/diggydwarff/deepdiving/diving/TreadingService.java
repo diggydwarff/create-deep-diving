@@ -19,10 +19,12 @@ public final class TreadingService {
     public static DivingPackets.TreadingPose pose(ServerPlayer player) {
         var state = DiverService.state(player);
 
+        boolean diving = DiverService.active(player);
+
         boolean active = player.isAlive()
             && player.isInWater()
-            && !state.blackedOut
-            && (state.depthHold || state.finsFloating);
+            && (!diving || !state.blackedOut)
+            && (diving && state.depthHold || state.finsFloating);
 
         Boolean swimming = FinsService.swimmingOverride(player);
 

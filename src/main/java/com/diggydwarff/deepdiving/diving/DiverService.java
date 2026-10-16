@@ -186,9 +186,10 @@ public final class DiverService {
         boolean hasBreathingEffect = player.hasEffect(MobEffects.WATER_BREATHING)
             || player.hasEffect(MobEffects.CONDUIT_POWER);
 
-        boolean magicalBypass = hasBreathingEffect && DivingConfig.WATER_BREATHING_BYPASS.get();
+        boolean breathingWithoutSupply = hasBreathingEffect && DivingConfig.WATER_BREATHING_BYPASS.get()
+            || SnorkelService.canBreathe(player);
 
-        state.supplied = state.underwater && supply != null && supply.available() && !magicalBypass;
+        state.supplied = state.underwater && supply != null && supply.available() && !breathingWithoutSupply;
         state.emergency = state.supplied && supply.emergency();
         state.mixture = supply != null ? supply.mix() : GasMix.AIR;
         state.gas = supply != null ? supply.remaining() : 0;
@@ -205,7 +206,7 @@ public final class DiverService {
 
         state.warnings = 0;
 
-        consumeBreathingGas(player, state, supply, magicalBypass);
+        consumeBreathingGas(player, state, supply, breathingWithoutSupply);
 
         boolean physiologyEnabled = DivingConfig.PHYSIOLOGY.get();
 
@@ -217,15 +218,15 @@ public final class DiverService {
                 breathingPressure,
                 oxygenPressure,
                 severity,
-                magicalBypass
+                breathingWithoutSupply
             );
         } else {
             clearPhysiology(player, state);
         }
 
-        updateDecompressionReadouts(player, state, profile, physiologyEnabled, magicalBypass);
+        updateDecompressionReadouts(player, state, profile, physiologyEnabled, breathingWithoutSupply);
 
-        updateWarnings(player, state, oxygenPressure, magicalBypass);
+        updateWarnings(player, state, oxygenPressure, breathingWithoutSupply);
 
         applyPressureEffects(player, state, historyValid, severity);
         DivingEffects.pressure(player, state.pressureInjury);
@@ -269,7 +270,7 @@ public final class DiverService {
         ServerPlayer player,
         DiverState state,
         BreathingEquipment.Supply supply,
-        boolean magicalBypass
+        boolean breathingWithoutSupply
     ) {
         if (state.supplied && (!supply.create() || DivingConfig.CREATE_AIR.get())) {
             BreathingEquipment.consume(player, supply, BreathingEquipment.consumption(supply, state.pressure));
@@ -288,7 +289,7 @@ public final class DiverService {
             state.gasSeconds = nextSupply == null
                     ? 0
                     : BreathingEquipment.remainingSeconds(nextSupply, state.pressure);
-        } else if (!magicalBypass) {
+        } else if (!breathingWithoutSupply) {
             state.gasSeconds = BreathingEquipment.remainingSeconds(supply, state.pressure);
         }
     }
@@ -301,10 +302,11 @@ public final class DiverService {
         double breathingPressure,
         double oxygenPressure,
         double severity,
-        boolean magicalBypass
+        boolean breathingWithoutSupply
     ) {
-        // Breath holding retains the previous lung/tissue gas; it does not load compressed air.
-        if (!state.underwater || state.supplied || magicalBypass) {
+        // A surface snorkel breath uses ordinary air at one atmosphere. Breath
+        // holding retains the previous lung gas instead of loading compressed air.
+        if (!state.underwater || state.supplied || breathingWithoutSupply) {
             state.tissues.step(
                 breathingMix,
                 breathingPressure,
@@ -314,7 +316,7 @@ public final class DiverService {
         }
 
         boolean oxygenDeficit = state.underwater
-            && !magicalBypass
+            && !breathingWithoutSupply
             && ((!state.supplied && player.getAirSupply() < 60)
                 || (state.supplied
                     && oxygenPressure < DivingConfig.MIN_OXYGEN.get()));
@@ -384,7 +386,7 @@ public final class DiverService {
         DiverState state,
         PressureProfile profile,
         boolean physiologyEnabled,
-        boolean magicalBypass
+        boolean breathingWithoutSupply
     ) {
         state.ceiling = physiologyEnabled ? DecompressionStops.depth(state.tissues, profile) : 0;
 
@@ -392,7 +394,7 @@ public final class DiverService {
         // supply, rather than the mixture we just consumed.
         var nextSupply = BreathingEquipment.select(player);
 
-        boolean nextSupplied = state.underwater && nextSupply != null && nextSupply.available() && !magicalBypass;
+        boolean nextSupplied = state.underwater && nextSupply != null && nextSupply.available() && !breathingWithoutSupply;
 
         GasMix nextMix = nextSupplied ? nextSupply.mix() : GasMix.AIR;
 
@@ -407,7 +409,7 @@ public final class DiverService {
                     state.depth,
                     DivingConfig.SIMULATION_RATE.get(),
                     DivingConfig.DECOMPRESSION_RATE.get(),
-                    !state.underwater || nextSupplied || magicalBypass
+                    !state.underwater || nextSupplied || breathingWithoutSupply
                 )
                 : 0;
         state.noDecoSeconds = physiologyEnabled
@@ -426,7 +428,7 @@ public final class DiverService {
         ServerPlayer player,
         DiverState state,
         double oxygenPressure,
-        boolean magicalBypass
+        boolean breathingWithoutSupply
     ) {
         if (state.supplied && state.gas < state.gasCapacity * 0.15) {
             state.warnings |= LOW_GAS;
@@ -435,7 +437,7 @@ public final class DiverService {
         if (state.underwater
             && BreathingEquipment.helmet(player)
             && !state.supplied
-            && !magicalBypass) {
+            && !breathingWithoutSupply) {
             state.warnings |= NO_SUPPLY;
         }
 

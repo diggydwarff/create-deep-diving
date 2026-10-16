@@ -29,9 +29,10 @@ public final class FinsService {
         return player.getItemBySlot(EquipmentSlot.FEET).is(DeepDiving.FINS.get());
     }
 
+    /** Fins remain usable without a helmet, tank, or active diving simulation. */
     public static boolean eligible(Player player) {
-        return DiverService.active(player)
-            && worn(player)
+        return worn(player)
+            && !player.isSpectator()
             && player.isAlive()
             && !player.getAbilities().flying
             && !player.isPassenger()
@@ -51,7 +52,9 @@ public final class FinsService {
 
         DiverState state = DiverService.state(player);
 
-        return !state.blackedOut && state.finPoseControlled ? state.finSwimming : null;
+        boolean blackedOut = DiverService.active(player) && state.blackedOut;
+
+        return !blackedOut && state.finPoseControlled ? state.finSwimming : null;
     }
 
     /** Client input describes intent; eligibility and the held depth remain server-owned. */
@@ -112,6 +115,8 @@ public final class FinsService {
     }
 
     public static void update(ServerPlayer player, DiverState state) {
+        boolean diving = DiverService.active(player);
+
         // Equipment bonuses apply during travel as well as during stationary buoyancy.
         modifier(player, NeoForgeMod.SWIM_SPEED, SWIM, .08, worn(player) && player.isInWater());
         modifier(
@@ -123,7 +128,7 @@ public final class FinsService {
         );
 
         if (!eligible(player)
-            || state.blackedOut
+            || diving && state.blackedOut
             || state.finDimension != null && state.finDimension != player.level().dimension()
             || state.finPreviousPosition != null
                 && player.position().distanceToSqr(state.finPreviousPosition) > 64
@@ -141,7 +146,7 @@ public final class FinsService {
             && state.finSwimming
             && !state.finMoving
             && !state.finVertical
-            && !state.depthHold;
+            && !(diving && state.depthHold);
 
         if (!floating) {
             state.finsFloating = false;
@@ -160,7 +165,7 @@ public final class FinsService {
         state.finDimension = player.level().dimension();
         state.finPreviousPosition = player.position();
 
-        double stop = DivingConfig.PHYSIOLOGY.get()
+        double stop = diving && DivingConfig.PHYSIOLOGY.get()
                 ? DecompressionStops.depth(
                     state.tissues,
                     DivingConfig.pressureProfile(player.level().dimension().location())

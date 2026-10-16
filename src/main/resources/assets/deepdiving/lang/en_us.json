@@ -119,5 +119,9 @@
   "subtitles.deepdiving.shallow_water_wash": "Water moves gently",
   "subtitles.deepdiving.deep_water_wash": "Deep water murmurs",
   "subtitles.deepdiving.distant_ocean": "Distant ocean resonance",
-  "subtitles.deepdiving.surface_activity": "Distant water ripples"
+  "subtitles.deepdiving.surface_activity": "Distant water ripples",
+  "item.deepdiving.snorkeling_mask": "Mask and Snorkel",
+  "tooltip.deepdiving.snorkeling_mask.wear": "Use: wear on head",
+  "tooltip.deepdiving.snorkeling_mask.breathing": "Breathe with a clear surface less than 2 blocks above your eyes",
+  "tooltip.deepdiving.snorkeling_mask.limits": "Solid cover blocks the snorkel; no pressure protection"
 }

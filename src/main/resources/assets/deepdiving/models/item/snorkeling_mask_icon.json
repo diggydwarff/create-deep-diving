@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "loader": "neoforge:item_layers",
+  "textures": {
+    "layer0": "deepdiving:item/snorkeling_mask",
+    "particle": "deepdiving:item/snorkeling_mask"
+  }
+}

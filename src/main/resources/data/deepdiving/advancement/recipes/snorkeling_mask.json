@@ -1,0 +1,26 @@
+{
+  "criteria": {
+    "has_glass": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:glass_pane"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_glass"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:snorkeling_mask"
+    ]
+  }
+}

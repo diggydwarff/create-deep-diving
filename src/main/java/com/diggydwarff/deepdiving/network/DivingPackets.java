@@ -228,13 +228,13 @@ public final class DivingPackets {
                 active ? s.toxicity : 0,
                 active ? s.narcosis : 0,
                 active ? s.decompressionStress : 0,
-                s.ceiling,
+                active ? s.ceiling : 0,
                 active ? s.pressureInjury : 0,
                 active ? s.pressureShock : 0,
                 s.noDecoSeconds,
                 s.mixture.oxygen(),
                 s.mixture.helium(),
-                s.warnings,
+                active ? s.warnings : 0,
                 s.underwater,
                 active ? s.gasSeconds : -1,
                 com.diggydwarff.deepdiving.config.DivingConfig.SAFE_ASCENT.get(),
@@ -242,10 +242,10 @@ public final class DivingPackets {
                 active && s.depthHold,
                 active && s.depthHold ? s.heldDepth : 0,
                 active && s.depthHold ? s.holdTargetY : 0,
-                active && s.finsFloating,
-                active && s.finSwimming,
-                active && s.finsFloating ? s.finDepth : 0,
-                active && s.finsFloating ? s.finTargetY : 0
+                s.finsFloating,
+                s.finSwimming,
+                s.finsFloating ? s.finDepth : 0,
+                s.finsFloating ? s.finTargetY : 0
             );
         }
 

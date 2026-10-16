@@ -119,6 +119,9 @@ public final class DeepDiving {
     public static final DeferredHolder<Item, DivingFinsItem> FINS =
         ITEMS.register("diving_fins", () -> new DivingFinsItem(new Item.Properties()));
 
+    public static final DeferredHolder<Item, SnorkelMaskItem> SNORKEL_MASK =
+        ITEMS.register("snorkeling_mask", () -> new SnorkelMaskItem(new Item.Properties()));
+
     public static final DeferredHolder<Item, DiveKnifeItem> KNIFE =
         ITEMS.register("dive_knife", () -> new DiveKnifeItem(new Item.Properties()));
 
@@ -270,6 +273,7 @@ public final class DeepDiving {
                         output.accept(COMPUTER.get());
                         output.accept(LAMP.get());
                         output.accept(FINS.get());
+                        output.accept(SNORKEL_MASK.get());
                         output.accept(KNIFE.get());
                         output.accept(GUIDE_NODE.get());
 
@@ -301,6 +305,7 @@ public final class DeepDiving {
         NeoForge.EVENT_BUS.register(com.diggydwarff.deepdiving.diving.DepthHoldService.class);
         NeoForge.EVENT_BUS.register(DivingLampService.class);
         NeoForge.EVENT_BUS.register(com.diggydwarff.deepdiving.diving.FinsService.class);
+        NeoForge.EVENT_BUS.register(com.diggydwarff.deepdiving.diving.SnorkelService.class);
         NeoForge.EVENT_BUS.register(com.diggydwarff.deepdiving.diving.TreadingService.class);
         NeoForge.EVENT_BUS.register(com.diggydwarff.deepdiving.diving.BreathingBubbleService.class);
         NeoForge.EVENT_BUS.register(com.diggydwarff.deepdiving.sediment.SedimentService.class);
