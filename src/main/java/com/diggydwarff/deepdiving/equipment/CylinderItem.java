@@ -11,7 +11,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 
-public final class CylinderItem extends BlockItem {
+public final class CylinderItem extends BlockItem implements Equipable {
     public final int capacity;
 
     public final double pressureRating;
@@ -27,12 +27,11 @@ public final class CylinderItem extends BlockItem {
     public final boolean emergency;
 
     public CylinderItem(
-        Block block,
-        Properties properties,
-        int capacity,
-        double pressureRating,
-        boolean emergency
-    ) {
+            Block block,
+            Properties properties,
+            int capacity,
+            double pressureRating,
+            boolean emergency) {
         super(block, properties.stacksTo(1));
         this.capacity = capacity;
         this.pressureRating = pressureRating;
@@ -44,7 +43,8 @@ public final class CylinderItem extends BlockItem {
 
         int cap = stack.getItem() instanceof CylinderItem c ? c.capacity : 0;
 
-        return new CylinderSupply(value.mix(), Math.min(cap, value.remaining()), value.backupEnabled());
+        return new CylinderSupply(
+                value.mix(), Math.min(cap, value.remaining()), value.backupEnabled());
     }
 
     public double rating() {
@@ -69,31 +69,32 @@ public final class CylinderItem extends BlockItem {
     }
 
     @Override
+    public EquipmentSlot getEquipmentSlot() {
+        return EquipmentSlot.CHEST;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(
-        Level level,
-        Player player,
-        InteractionHand hand
-    ) {
+            Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+
+        if (!player.isShiftKeyDown()) {
+            return swapWithEquipmentSlot(this, level, player, hand);
+        }
 
         if (!level.isClientSide) {
             if (player.isShiftKeyDown()) {
                 CylinderSupply s = supply(stack);
 
-                stack.set(DeepDiving.SUPPLY.get(), new CylinderSupply(s.mix(), s.remaining(), !s.backupEnabled()));
+                stack.set(
+                        DeepDiving.SUPPLY.get(),
+                        new CylinderSupply(s.mix(), s.remaining(), !s.backupEnabled()));
                 player.displayClientMessage(
-                    Component.translatable(
-                        s.backupEnabled()
-                                ? "message.deepdiving.backup_off"
-                                : "message.deepdiving.backup_on"
-                    ),
-                    true
-                );
-            } else {
-                ItemStack old = player.getItemBySlot(EquipmentSlot.CHEST);
-
-                player.setItemSlot(EquipmentSlot.CHEST, stack.copy());
-                player.setItemInHand(hand, old);
+                        Component.translatable(
+                                s.backupEnabled()
+                                        ? "message.deepdiving.backup_off"
+                                        : "message.deepdiving.backup_on"),
+                        true);
             }
         }
 
@@ -102,73 +103,64 @@ public final class CylinderItem extends BlockItem {
 
     @Override
     public void appendHoverText(
-        ItemStack stack,
-        TooltipContext context,
-        List<Component> lines,
-        TooltipFlag flag
-    ) {
+            ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         CylinderSupply s = supply(stack);
 
         lines.add(Component.literal(s.mix().name()).withStyle(ChatFormatting.AQUA));
         lines.add(
-            Component.literal((int) s.remaining() + " / " + capacity + " mB (surface equivalent)")
-                .withStyle(ChatFormatting.GRAY)
-        );
+                Component.literal(
+                                (int) s.remaining() + " / " + capacity + " mB (surface equivalent)")
+                        .withStyle(ChatFormatting.GRAY));
         lines.add(
-            Component.literal(
-                String.format(
-                    java.util.Locale.ROOT,
-                    "Rating: %.1f atm | Gas MOD: %.0f blocks",
-                    rating(),
-                    Math.floor(
-                        s.mix()
-                            .maximumDepth(
-                                DivingConfig.pressureProfile(
-                                    context.level() == null
-                                            ? Level.OVERWORLD.location()
-                                            : context.level()
-                                                .dimension()
-                                                .location()
-                                )
-                            )
-                    )
-                )
-            )
-                .withStyle(ChatFormatting.GOLD)
-        );
+                Component.literal(
+                                String.format(
+                                        java.util.Locale.ROOT,
+                                        "Rating: %.1f atm | Gas MOD: %.0f blocks",
+                                        rating(),
+                                        Math.floor(
+                                                s.mix()
+                                                        .maximumDepth(
+                                                                DivingConfig.pressureProfile(
+                                                                        context.level() == null
+                                                                                ? Level.OVERWORLD
+                                                                                        .location()
+                                                                                : context.level()
+                                                                                        .dimension()
+                                                                                        .location())))))
+                        .withStyle(ChatFormatting.GOLD));
 
-        var profile = DivingConfig.pressureProfile(
-            context.level() == null
-                    ? Level.OVERWORLD.location()
-                    : context.level().dimension().location()
-        );
+        var profile =
+                DivingConfig.pressureProfile(
+                        context.level() == null
+                                ? Level.OVERWORLD.location()
+                                : context.level().dimension().location());
 
         double minimum = Math.ceil(s.mix().minimumDepth(profile));
 
         if (minimum > 0) {
             lines.add(
-                Component.literal(String.format(java.util.Locale.ROOT, "Minimum depth: %.0f blocks", minimum))
-                    .withStyle(ChatFormatting.RED)
-            );
-            lines.add(Component.literal("Low oxygen above this depth").withStyle(ChatFormatting.RED));
+                    Component.literal(
+                                    String.format(
+                                            java.util.Locale.ROOT,
+                                            "Minimum depth: %.0f blocks",
+                                            minimum))
+                            .withStyle(ChatFormatting.RED));
+            lines.add(
+                    Component.literal("Low oxygen above this depth").withStyle(ChatFormatting.RED));
         }
 
         lines.add(
-            Component.translatable("tooltip.deepdiving.cylinder_use")
-                .withStyle(ChatFormatting.DARK_GRAY)
-        );
+                Component.translatable("tooltip.deepdiving.cylinder_use")
+                        .withStyle(ChatFormatting.DARK_GRAY));
         lines.add(
-            Component.translatable("tooltip.deepdiving.cylinder_place")
-                .withStyle(ChatFormatting.DARK_GRAY)
-        );
+                Component.translatable("tooltip.deepdiving.cylinder_place")
+                        .withStyle(ChatFormatting.DARK_GRAY));
         lines.add(
-            Component.translatable(
-                s.backupEnabled()
-                        ? "message.deepdiving.backup_on"
-                        : "message.deepdiving.backup_off"
-            )
-                .withStyle(ChatFormatting.GRAY)
-        );
+                Component.translatable(
+                                s.backupEnabled()
+                                        ? "message.deepdiving.backup_on"
+                                        : "message.deepdiving.backup_off")
+                        .withStyle(ChatFormatting.GRAY));
     }
 
     @Override

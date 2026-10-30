@@ -1,0 +1,7 @@
+{
+  "parent": "deepdiving:block/dive_sign/template_3",
+  "textures": {
+    "front": "deepdiving:block/dive_sign/snorkeling_area",
+    "back": "deepdiving:block/dive_sign/back"
+  }
+}

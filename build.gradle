@@ -38,6 +38,15 @@ repositories {
 }
 
 dependencies {
+    if (project.hasProperty('mekanismQa')) {
+        runtimeOnly fileTree(dir: 'qa-libs', include: ['Mekanism-*.jar'])
+    }
+    if (project.hasProperty('graphicsQa')) {
+        runtimeOnly fileTree(dir: 'qa-libs/graphics', include: ['*.jar'])
+    }
+    if (project.hasProperty('sodiumQa')) {
+        runtimeOnly fileTree(dir: 'qa-libs/graphics-latest', include: ['sodium-*.jar'])
+    }
     // Original upstream 1.0 JAR, pinned locally for reproducible Jar-in-Jar builds.
     // The API's public MIT text and original metadata are preserved in META-INF/licenses.
     jarJar(implementation('com.breadres:illuminationapi')) {
@@ -107,6 +116,8 @@ sourceSets {
     }
 }
 
+def clientProbeReportName = { project.hasProperty('hudQa') ? 'hud-qa-results.txt' : project.hasProperty('rc1Qa') ? 'rc1-refinement-results.txt' : project.hasProperty('configQa') ? 'config-qa-results.txt' : project.hasProperty('polishQa') ? 'polish-qa-results.txt' : project.hasProperty('beta3Qa') ? 'beta3-visual-results.txt' : project.hasProperty('panelQa') ? 'panel-qa-results.txt' : project.hasProperty('siteQa') ? 'site-qa-results.txt' : project.hasProperty('worldQa') ? 'world-qa-results.txt' : 'visual-qa-results.txt' }
+
 if (project.hasProperty('qa')) {
     neoForge.mods.deepdiving.sourceSet sourceSets.qa
 
@@ -125,7 +136,56 @@ if (project.hasProperty('qa')) {
 
     neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'true'
 
-    neoForge.runs.client.programArguments.addAll('--width', '1280', '--height', '900')
+    tasks.named('runClient') {
+        doFirst {
+            def report = project.file("run/client/${clientProbeReportName()}")
+            if (report.exists() && !report.delete()) throw new GradleException("Could not clear old QA report: ${report}")
+        }
+    }
+
+    neoForge.runs.client.programArguments.addAll(
+            '--width', (findProperty('qaWidth') ?: '1280').toString(),
+            '--height', (findProperty('qaHeight') ?: '900').toString())
+
+    if (project.hasProperty('worldQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.worldQa', 'true'
+    }
+
+    if (project.hasProperty('siteQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.siteQa', 'true'
+    }
+
+    if (project.hasProperty('panelQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.panelQa', 'true'
+    }
+
+    if (project.hasProperty('beta3Qa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.beta3Qa', 'true'
+    }
+
+    if (project.hasProperty('polishQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.polishQa', 'true'
+    }
+
+    if (project.hasProperty('configQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.configQa', 'true'
+    }
+
+    if (project.hasProperty('hudQa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.hudQa', 'true'
+    }
+
+    if (project.hasProperty('rc1Qa')) {
+        neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
+        neoForge.runs.client.systemProperty 'deepdiving.rc1Qa', 'true'
+    }
 
     if (project.hasProperty('shaderQa')) {
         neoForge.runs.client.systemProperty 'deepdiving.visualQa', 'false'
@@ -146,6 +206,10 @@ tasks.register('simulationTest', JavaExec) {
     mainClass = 'com.diggydwarff.deepdiving.qa.SimulationTest'
 }
 
+tasks.named('check') {
+    dependsOn tasks.named('simulationTest')
+}
+
 tasks.register('verifyServerProbe') {
     dependsOn tasks.named('runServer')
 
@@ -157,6 +221,22 @@ tasks.register('verifyServerProbe') {
                 || report.text.contains('FAIL ')
                 || !report.text.contains('PASS ')) {
             throw new GradleException('Server probe did not pass; inspect run/server/qa-results.txt.')
+        }
+    }
+}
+
+tasks.register('verifyClientProbe') {
+    dependsOn tasks.named('runClient')
+
+    doLast {
+        def reportName = clientProbeReportName()
+        def report = file("run/client/${reportName}")
+
+        if (!project.hasProperty('qa')
+                || !report.exists()
+                || report.text.contains('FAIL ')
+                || !report.text.contains('PASS ')) {
+            throw new GradleException("Client probe did not pass; inspect run/client/${reportName}.")
         }
     }
 }

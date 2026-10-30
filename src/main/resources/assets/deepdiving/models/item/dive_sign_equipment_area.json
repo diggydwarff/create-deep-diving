@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "deepdiving:block/dive_sign/equipment_area"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gear": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#deepdiving:swimsuit_trousers"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gear"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:pink_swimsuit_trousers_dye"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+Create: Deep Diving 1.0.0-rc.1 — October 29, 2026
+Minecraft 1.21.1 / NeoForge 21.1.238 / Create 6.0.10-280 / Java 21.0.13
+
+PASS production Gradle build, compilation, packaging and simulationTest
+PASS ascent regressions: ordinary movement, repeated up/down adjustments, grace/rise
+     thresholds, sustained rapid ascent, slowing recovery, existing low-limit configs,
+     invalid samples, history resets, fractional elapsed time and strict zero-tolerance mode
+PASS 50,500 gas mixture conservation transactions
+PASS tissue loading/recovery, chart coverage/contours, dive statistics and lamp profiles
+PASS 641 JSON resources, internal model/texture references and 48 colored wearables
+PASS 24 pictograms plus blank panel, 1,200 mount/rotation variants and art contrast
+PASS dedicated server verifyServerProbe (13 report lines; no optional mods installed)
+PASS actual submerged-player updates: short/normal ascents quiet; sustained fast ascent
+     warns; slowing clears; teleport/surface transitions reset; decompression remains active
+PASS readout warning consistency and violated-stop guidance priority
+PASS packaged mod metadata identifies 1.0.0-rc.1
+PASS packaged QA exclusions, new AscentMonitor class, ZIP integrity and bundled library checksum
+
+JAR SHA-256: 26716f10d06fc695ea6844a0c566f2439a1a9cd997afc30a150b40165334c7a9
+
+See rc1-server-results.txt and rc1-simulation-results.txt for current check results.
+Other QA reports/screenshots describe the earlier exploration.3 lineage.
+
+Environment note: NeoForm build tooling needed a local process-command discovery fallback
+because this execution environment hides ProcessHandle command metadata. The fallback
+was applied only to the external build tool and is not included in the mod or source ZIP.
+Network trust/proxy settings were likewise limited to the build environment.
+
+Not rerun here: native client rendering, full Mekanism installation, live Deep Seas/Sable,
+third-party shader packs or multiplayer expeditions. Their earlier reports are historical;
+live acceptance checks remain in docs/RELEASE_CANDIDATE.md. No official release published.
+Cold Sweat wetsuits/thermal protection are absent from this source.

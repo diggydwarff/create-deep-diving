@@ -1,0 +1,7 @@
+{
+  "parent": "deepdiving:block/dive_sign/template_post_2",
+  "textures": {
+    "front": "deepdiving:block/dive_sign/decompression_stop",
+    "back": "deepdiving:block/dive_sign/back"
+  }
+}

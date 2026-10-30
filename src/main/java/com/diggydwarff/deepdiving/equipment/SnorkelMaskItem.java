@@ -5,6 +5,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,10 +14,17 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-/** A mask and attached snorkel, worn without a tank or regulator. */
+/** A combined head-slot mask and snorkel for surface breathing. */
 public final class SnorkelMaskItem extends Item implements Equipable {
+    public final DyeColor color;
+
     public SnorkelMaskItem(Properties properties) {
+        this(properties, DyeColor.CYAN);
+    }
+
+    public SnorkelMaskItem(Properties properties, DyeColor color) {
         super(properties.stacksTo(1));
+        this.color = color;
     }
 
     @Override
@@ -25,13 +33,15 @@ public final class SnorkelMaskItem extends Item implements Equipable {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(
+            Level level, Player player, InteractionHand hand) {
         // Vanilla's swap also respects occupied slots and binding enchantments.
         return swapWithEquipmentSlot(this, level, player, hand);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
+    public void appendHoverText(
+            ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         lines.add(Component.translatable("tooltip.deepdiving.snorkeling_mask.wear"));
         lines.add(Component.translatable("tooltip.deepdiving.snorkeling_mask.breathing"));
         lines.add(Component.translatable("tooltip.deepdiving.snorkeling_mask.limits"));

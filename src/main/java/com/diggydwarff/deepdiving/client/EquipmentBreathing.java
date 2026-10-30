@@ -6,12 +6,12 @@ import com.diggydwarff.deepdiving.config.DivingConfig;
 import com.diggydwarff.deepdiving.equipment.BreathingEquipment;
 import com.diggydwarff.deepdiving.network.BreathingPulse;
 import com.diggydwarff.deepdiving.presentation.BreathingCycle;
+import com.diggydwarff.deepdiving.presentation.ExhaleBubbles;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -42,11 +42,14 @@ public final class EquipmentBreathing {
 
         final BreathingSound sound;
 
+        final int bubbleVariation;
+
         int age;
 
-        Breath(BreathingPulse pulse, BreathingSound sound) {
+        Breath(BreathingPulse pulse, BreathingSound sound, int bubbleVariation) {
             this.pulse = pulse;
             this.sound = sound;
+            this.bubbleVariation = bubbleVariation;
         }
 
         void finish() {
@@ -101,7 +104,7 @@ public final class EquipmentBreathing {
             Minecraft.getInstance().getSoundManager().play(sound);
         }
 
-        breaths.put(pulse.diverId(), new Breath(pulse, sound));
+        breaths.put(pulse.diverId(), new Breath(pulse, sound, diver.getRandom().nextInt()));
     }
 
     private static boolean visible(Player diver) {
@@ -155,15 +158,16 @@ public final class EquipmentBreathing {
             }
 
             if (breath.pulse.phase() == BreathingCycle.EXHALE && breath.pulse.bubbles()
-                && DivingConfig.EXHAUST_BUBBLES.get() && breath.age < 12 && breath.age % 2 == 0) {
-                emitBubbles(diver, breath.age < 6 ? 3 : 2);
+                && DivingConfig.EXHAUST_BUBBLES.get()) {
+                int count = ExhaleBubbles.count(breath.age, breath.pulse.ticks(), breath.bubbleVariation);
+                if (count > 0) emitBubbles(diver, count, breath.age >= 6);
             }
 
             breath.age++;
         }
     }
 
-    private static void emitBubbles(Player diver, int count) {
+    private static void emitBubbles(Player diver, int count, boolean trail) {
         Vec3 eye = diver.getEyePosition();
 
         Vec3 origin = eye.add(diver.getLookAngle().scale(.20)).add(0, -.10, 0);
@@ -179,14 +183,16 @@ public final class EquipmentBreathing {
         var random = diver.getRandom();
 
         for (int index = 0; index < count; index++) {
+            // A short mouth-directed puff opens the exhale, then drag lets each bubble rise.
+            Vec3 puff = diver.getLookAngle().scale(trail ? 0 : .030 + random.nextDouble() * .020);
             previousLevel.addParticle(
-                ParticleTypes.BUBBLE,
+                DeepDiving.DIVER_BUBBLE.get(),
                 origin.x + random.nextGaussian() * .035,
                 origin.y + random.nextGaussian() * .02,
                 origin.z + random.nextGaussian() * .035,
-                diver.getDeltaMovement().x * .15,
-                .035,
-                diver.getDeltaMovement().z * .15
+                diver.getDeltaMovement().x * .15 + puff.x,
+                trail ? .015 + random.nextDouble() * .012 : .025 + random.nextDouble() * .020,
+                diver.getDeltaMovement().z * .15 + puff.z
             );
         }
     }

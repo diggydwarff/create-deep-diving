@@ -2,13 +2,13 @@
   "type": "create:mechanical_crafting",
   "category": "misc",
   "pattern": [
-    " R ",
+    " M ",
     "CTC",
     " B "
   ],
   "key": {
-    "R": {
-      "item": "deepdiving:diving_regulator"
+    "M": {
+      "item": "create:precision_mechanism"
     },
     "C": {
       "item": "deepdiving:advanced_diving_cylinder"

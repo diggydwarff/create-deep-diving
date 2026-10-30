@@ -1,0 +1,2 @@
+PASS native client startup, 48 item models and journal render
+PASS journal opening, refresh identity and closed-screen regression checks

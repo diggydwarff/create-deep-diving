@@ -1,6 +1,7 @@
 package com.diggydwarff.deepdiving.machine;
 
 import com.diggydwarff.deepdiving.DeepDiving;
+import com.diggydwarff.deepdiving.compat.GasCompatibility;
 import com.diggydwarff.deepdiving.equipment.CylinderItem;
 import com.diggydwarff.deepdiving.gas.CylinderSupply;
 import com.diggydwarff.deepdiving.gas.GasMix;
@@ -40,29 +41,30 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
 
     public static final int DATA_COUNT = 12;
 
-    public final ItemStackHandler inventory = new ItemStackHandler(3) {
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == 0
-                && (kind() == MachineBlock.Kind.COMPRESSOR
-                    || kind() == MachineBlock.Kind.BLENDER)
-                && stack.getItem() instanceof CylinderItem
-                || slot == 2
-                    && (kind() == MachineBlock.Kind.STORAGE
-                        || kind() == MachineBlock.Kind.BLENDER)
-                    && stack.is(DeepDiving.HELIUM_CARTRIDGE.get());
-        }
+    public final ItemStackHandler inventory =
+            new ItemStackHandler(3) {
+                @Override
+                public boolean isItemValid(int slot, ItemStack stack) {
+                    return slot == 0
+                                    && (kind() == MachineBlock.Kind.COMPRESSOR
+                                            || kind() == MachineBlock.Kind.BLENDER)
+                                    && stack.getItem() instanceof CylinderItem
+                            || slot == 2
+                                    && (kind() == MachineBlock.Kind.STORAGE
+                                            || kind() == MachineBlock.Kind.BLENDER)
+                                    && stack.is(DeepDiving.HELIUM_CARTRIDGE.get());
+                }
 
-        @Override
-        public int getSlotLimit(int slot) {
-            return slot == 2 ? 64 : 1;
-        }
+                @Override
+                public int getSlotLimit(int slot) {
+                    return slot == 2 ? 64 : 1;
+                }
 
-        @Override
-        protected void onContentsChanged(int slot) {
-            changed();
-        }
-    };
+                @Override
+                protected void onContentsChanged(int slot) {
+                    changed();
+                }
+            };
 
     public final FluidTank[] tanks = new FluidTank[4];
 
@@ -70,38 +72,42 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
 
     public int status;
 
+    private int blendPhase;
+    private GasMix blendMix = GasMix.AIR;
+
     private boolean dirty;
 
     // These indices are the menu's wire contract; keep them aligned with MachineMenu/Screen.
-    public final ContainerData data = new ContainerData() {
-        @Override
-        public int getCount() {
-            return DATA_COUNT;
-        }
+    public final ContainerData data =
+            new ContainerData() {
+                @Override
+                public int getCount() {
+                    return DATA_COUNT;
+                }
 
-        @Override
-        public void set(int index, int value) {}
+                @Override
+                public void set(int index, int value) {}
 
-        @Override
-        public int get(int index) {
-            return switch (index) {
-                case 0 -> (int) Math.abs(getSpeed());
-                case 1 -> status;
-                case 2, 3, 4, 5 -> tanks[index - 2].getFluidAmount() & 0xffff;
-                case 6 -> target.oxygen();
-                case 7 -> target.helium();
-                case 8 ->
-                        (int) CylinderItem.supply(inventory.getStackInSlot(0)).remaining();
-                case 9 -> CylinderItem.supply(inventory.getStackInSlot(0)).mix().oxygen();
-                case 10 -> CylinderItem.supply(inventory.getStackInSlot(0)).mix().helium();
-                case 11 ->
-                        inventory.getStackInSlot(0).getItem() instanceof CylinderItem c
-                                ? c.capacity
-                                : 0;
-                default -> 0;
+                @Override
+                public int get(int index) {
+                    return switch (index) {
+                        case 0 -> (int) Math.abs(getSpeed());
+                        case 1 -> status;
+                        case 2, 3, 4, 5 -> tanks[index - 2].getFluidAmount() & 0xffff;
+                        case 6 -> target.oxygen();
+                        case 7 -> target.helium();
+                        case 8 ->
+                                (int) CylinderItem.supply(inventory.getStackInSlot(0)).remaining();
+                        case 9 -> CylinderItem.supply(inventory.getStackInSlot(0)).mix().oxygen();
+                        case 10 -> CylinderItem.supply(inventory.getStackInSlot(0)).mix().helium();
+                        case 11 ->
+                                inventory.getStackInSlot(0).getItem() instanceof CylinderItem c
+                                        ? c.capacity
+                                        : 0;
+                        default -> 0;
+                    };
+                }
             };
-        }
-    };
 
     public GasMachine(BlockPos pos, BlockState state) {
         super(DeepDiving.MACHINE.get(), pos, state);
@@ -109,22 +115,40 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
         for (int i = 0; i < 4; i++) {
             final int index = i;
 
-            tanks[i] = new FluidTank(kind() == MachineBlock.Kind.STORAGE ? STORAGE_CAPACITY : CAPACITY) {
-                @Override
-                public boolean isFluidValid(FluidStack stack) {
-                    if (kind() == MachineBlock.Kind.STORAGE && index == 0) {
-                        return java.util.Arrays.stream(Gases.all())
-                            .anyMatch(g -> stack.getFluid().isSame(g.source.get()));
-                    }
+            tanks[i] =
+                    new FluidTank(
+                            kind() == MachineBlock.Kind.STORAGE ? STORAGE_CAPACITY : CAPACITY) {
+                        @Override
+                        public boolean isFluidValid(FluidStack stack) {
+                            int gas = GasCompatibility.kind(stack);
+                            if (kind() == MachineBlock.Kind.STORAGE && index == 0) {
+                                return gas >= 0;
+                            }
+                            return gas == index;
+                        }
 
-                    return stack.getFluid().isSame(Gases.all()[index].source.get());
-                }
+                        @Override
+                        public int fill(FluidStack resource, IFluidHandler.FluidAction action) {
+                            return isFluidValid(resource)
+                                    ? super.fill(GasCompatibility.canonical(resource), action)
+                                    : 0;
+                        }
 
-                @Override
-                protected void onContentsChanged() {
-                    changed();
-                }
-            };
+                        @Override
+                        public FluidStack drain(
+                                FluidStack resource, IFluidHandler.FluidAction action) {
+                            FluidStack drained =
+                                    super.drain(GasCompatibility.canonical(resource), action);
+                            return drained.isEmpty()
+                                    ? FluidStack.EMPTY
+                                    : resource.copyWithAmount(drained.getAmount());
+                        }
+
+                        @Override
+                        protected void onContentsChanged() {
+                            changed();
+                        }
+                    };
         }
     }
 
@@ -207,7 +231,10 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
             return;
         }
 
-        int made = tanks[0].fill(new FluidStack(Gases.AIR.source.get(), rate()), IFluidHandler.FluidAction.EXECUTE);
+        int made =
+                tanks[0].fill(
+                        new FluidStack(Gases.AIR.source.get(), rate()),
+                        IFluidHandler.FluidAction.EXECUTE);
 
         if (made > 0) {
             status = 2;
@@ -224,15 +251,20 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
         batches = Math.min(batches, (tanks[2].getCapacity() - tanks[2].getFluidAmount()) / 79);
 
         if (batches == 0) {
-            status = tanks[0].getFluidAmount() < 100
-                    ? 9
-                    : tanks[1].getCapacity() - tanks[1].getFluidAmount() < 21 ? 10 : 11;
+            status =
+                    tanks[0].getFluidAmount() < 100
+                            ? 9
+                            : tanks[1].getCapacity() - tanks[1].getFluidAmount() < 21 ? 10 : 11;
             return;
         }
 
         tanks[0].drain(batches * 100, IFluidHandler.FluidAction.EXECUTE);
-        tanks[1].fill(new FluidStack(Gases.OXYGEN.source.get(), batches * 21), IFluidHandler.FluidAction.EXECUTE);
-        tanks[2].fill(new FluidStack(Gases.NITROGEN.source.get(), batches * 79), IFluidHandler.FluidAction.EXECUTE);
+        tanks[1].fill(
+                new FluidStack(Gases.OXYGEN.source.get(), batches * 21),
+                IFluidHandler.FluidAction.EXECUTE);
+        tanks[2].fill(
+                new FluidStack(Gases.NITROGEN.source.get(), batches * 79),
+                IFluidHandler.FluidAction.EXECUTE);
         status = 2;
     }
 
@@ -251,7 +283,9 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
                 continue;
             }
 
-            IFluidHandler other = level.getCapability(Capabilities.FluidHandler.BLOCK, neighbor, side.getOpposite());
+            IFluidHandler other =
+                    level.getCapability(
+                            Capabilities.FluidHandler.BLOCK, neighbor, side.getOpposite());
 
             if (other == null) {
                 continue;
@@ -278,7 +312,10 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
                     continue;
                 }
 
-                FluidStack moved = source.drain(simulated.copyWithAmount(accepted), IFluidHandler.FluidAction.EXECUTE);
+                FluidStack moved =
+                        source.drain(
+                                simulated.copyWithAmount(accepted),
+                                IFluidHandler.FluidAction.EXECUTE);
 
                 int filled = destination.fill(moved, IFluidHandler.FluidAction.EXECUTE);
 
@@ -343,8 +380,6 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
             return;
         }
 
-        int[] needed = mix.constituents(amount);
-
         if (compressedAir) {
             amount = Math.min(amount, tanks[0].getFluidAmount());
 
@@ -355,22 +390,37 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
 
             tanks[0].drain(amount, IFluidHandler.FluidAction.EXECUTE);
         } else {
-            for (int i = 0; i < 3; i++) {
-                if (tanks[i + 1].getFluidAmount() < needed[i]) {
-                    status = 3;
-                    return;
-                }
+            if (!mix.equals(blendMix)) {
+                blendMix = mix;
+                blendPhase = 0;
             }
+            amount =
+                    mix.availableAmount(
+                            amount,
+                            new int[] {
+                                tanks[1].getFluidAmount(),
+                                tanks[2].getFluidAmount(),
+                                tanks[3].getFluidAmount()
+                            },
+                            blendPhase);
+            if (amount == 0) {
+                status = 3;
+                return;
+            }
+            int[] needed = mix.constituents(amount, blendPhase);
 
             for (int i = 0; i < 3; i++) {
                 tanks[i + 1].drain(needed[i], IFluidHandler.FluidAction.EXECUTE);
             }
+            blendPhase = (blendPhase + amount) % 100;
         }
 
         stack.set(
-            DeepDiving.SUPPLY.get(),
-            new CylinderSupply(mix, Math.min(cylinder.capacity, supply.remaining() + amount), supply.backupEnabled())
-        );
+                DeepDiving.SUPPLY.get(),
+                new CylinderSupply(
+                        mix,
+                        Math.min(cylinder.capacity, supply.remaining() + amount),
+                        supply.backupEnabled()));
         status = 2;
         changed();
 
@@ -395,16 +445,25 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
                 if (!inventory.getStackInSlot(0).isEmpty()) {
                     var s = CylinderItem.supply(inventory.getStackInSlot(0));
 
-                    inventory.getStackInSlot(0)
-                        .set(DeepDiving.SUPPLY.get(), new CylinderSupply(s.mix(), 0, s.backupEnabled()));
+                    inventory
+                            .getStackInSlot(0)
+                            .set(
+                                    DeepDiving.SUPPLY.get(),
+                                    new CylinderSupply(s.mix(), 0, s.backupEnabled()));
                 }
             }
             case 5 -> target = new GasMix(Math.max(1, target.oxygen() - 1), target.helium());
             case 6 ->
-                    target = new GasMix(Math.min(100 - target.helium(), target.oxygen() + 1), target.helium());
+                    target =
+                            new GasMix(
+                                    Math.min(100 - target.helium(), target.oxygen() + 1),
+                                    target.helium());
             case 7 -> target = new GasMix(target.oxygen(), Math.max(0, target.helium() - 1));
             case 8 ->
-                    target = new GasMix(target.oxygen(), Math.min(100 - target.oxygen(), target.helium() + 1));
+                    target =
+                            new GasMix(
+                                    target.oxygen(),
+                                    Math.min(100 - target.oxygen(), target.helium() + 1));
             default -> {
                 return;
             }
@@ -541,6 +600,7 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
 
         tag.putInt("oxygen", target.oxygen());
         tag.putInt("helium", target.helium());
+        tag.putInt("blendPhase", target.equals(blendMix) ? blendPhase : 0);
         return tag;
     }
 
@@ -570,6 +630,8 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
         int h = Math.clamp(tag.getInt("helium"), 0, 100 - o);
 
         target = new GasMix(o, h);
+        blendMix = target;
+        blendPhase = Math.clamp(tag.getInt("blendPhase"), 0, 99);
         status = tag.getInt("status");
     }
 
@@ -609,58 +671,50 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean sneaking) {
         tooltip.add(
-            Component.literal("      " + getDisplayName().getString())
-                .withStyle(ChatFormatting.GOLD)
-        );
+                Component.literal("      " + getDisplayName().getString())
+                        .withStyle(ChatFormatting.GOLD));
         tooltip.add(Component.literal("  " + statusText(status)).withStyle(ChatFormatting.GRAY));
 
         if (kind() != MachineBlock.Kind.STORAGE) {
             Direction front = getBlockState().getValue(MachineBlock.HORIZONTAL_FACING);
 
             tooltip.add(
-                Component.literal("  Shaft: " + front.getOpposite().getName())
-                    .withStyle(ChatFormatting.DARK_GRAY)
-            );
+                    Component.literal("  Shaft: " + front.getOpposite().getName())
+                            .withStyle(ChatFormatting.DARK_GRAY));
 
             if (kind() == MachineBlock.Kind.SEPARATOR || kind() == MachineBlock.Kind.BLENDER) {
                 tooltip.add(
-                    Component.literal(
-                        "  O2 "
-                                + (kind() == MachineBlock.Kind.SEPARATOR
-                                        ? "OUT: "
-                                        : "IN: ")
-                                + front.getCounterClockWise().getName()
-                                + " | N2 "
-                                + (kind() == MachineBlock.Kind.SEPARATOR
-                                        ? "OUT: "
-                                        : "IN: ")
-                                + front.getClockWise().getName()
-                    )
-                        .withStyle(ChatFormatting.AQUA)
-                );
+                        Component.literal(
+                                        "  O2 "
+                                                + (kind() == MachineBlock.Kind.SEPARATOR
+                                                        ? "OUT: "
+                                                        : "IN: ")
+                                                + front.getCounterClockWise().getName()
+                                                + " | N2 "
+                                                + (kind() == MachineBlock.Kind.SEPARATOR
+                                                        ? "OUT: "
+                                                        : "IN: ")
+                                                + front.getClockWise().getName())
+                                .withStyle(ChatFormatting.AQUA));
                 tooltip.add(
-                    Component.literal(
-                        kind() == MachineBlock.Kind.SEPARATOR
-                                ? "  Compressed air IN: top"
-                                : "  Helium IN: top"
-                    )
-                        .withStyle(ChatFormatting.GRAY)
-                );
+                        Component.literal(
+                                        kind() == MachineBlock.Kind.SEPARATOR
+                                                ? "  Compressed air IN: top"
+                                                : "  Helium IN: top")
+                                .withStyle(ChatFormatting.GRAY));
             }
         }
 
         for (FluidTank tank : tanks) {
             if (!tank.isEmpty()) {
                 tooltip.add(
-                    Component.literal(
-                        "  "
-                                + tank.getFluid().getHoverName().getString()
-                                + ": "
-                                + tank.getFluidAmount()
-                                + " mB"
-                    )
-                        .withStyle(ChatFormatting.AQUA)
-                );
+                        Component.literal(
+                                        "  "
+                                                + tank.getFluid().getHoverName().getString()
+                                                + ": "
+                                                + tank.getFluidAmount()
+                                                + " mB")
+                                .withStyle(ChatFormatting.AQUA));
             }
         }
 
@@ -670,18 +724,15 @@ public final class GasMachine extends KineticBlockEntity implements MenuProvider
 
         if (kind() == MachineBlock.Kind.STORAGE) {
             tooltip.add(
-                Component.literal(
-                    String.format(
-                        java.util.Locale.ROOT,
-                        "  %.1f / 200 atm | 64000 mB capacity",
-                        1
-                                + 199.0
-                                        * tanks[0].getFluidAmount()
-                                        / STORAGE_CAPACITY
-                    )
-                )
-                    .withStyle(ChatFormatting.GRAY)
-            );
+                    Component.literal(
+                                    String.format(
+                                            java.util.Locale.ROOT,
+                                            "  %.1f / 200 atm | 64000 mB capacity",
+                                            1
+                                                    + 199.0
+                                                            * tanks[0].getFluidAmount()
+                                                            / STORAGE_CAPACITY))
+                            .withStyle(ChatFormatting.GRAY));
         }
 
         return true;

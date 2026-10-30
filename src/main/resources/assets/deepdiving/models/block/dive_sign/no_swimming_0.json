@@ -1,0 +1,7 @@
+{
+  "parent": "deepdiving:block/dive_sign/template_0",
+  "textures": {
+    "front": "deepdiving:block/dive_sign/no_swimming",
+    "back": "deepdiving:block/dive_sign/back"
+  }
+}

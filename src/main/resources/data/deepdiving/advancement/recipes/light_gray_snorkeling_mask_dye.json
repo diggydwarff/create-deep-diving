@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gear": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#deepdiving:snorkeling_mask"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gear"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:light_gray_snorkeling_mask_dye"
+    ]
+  }
+}

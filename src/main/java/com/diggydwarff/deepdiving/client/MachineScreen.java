@@ -1,6 +1,7 @@
 package com.diggydwarff.deepdiving.client;
 
 import com.diggydwarff.deepdiving.config.DivingConfig;
+import com.diggydwarff.deepdiving.equipment.CylinderItem;
 import com.diggydwarff.deepdiving.gas.GasMix;
 import com.diggydwarff.deepdiving.machine.GasMachine;
 import com.diggydwarff.deepdiving.machine.MachineBlock;
@@ -16,6 +17,8 @@ import java.util.Locale;
 
 public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu> {
     private MachineLayout layout = MachineLayout.SPACIOUS;
+    private final CreateButton[] presets = new CreateButton[4];
+    private CreateButton purge;
 
     public MachineScreen(MachineMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -24,9 +27,10 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
 
     @Override
     protected void init() {
-        layout = height >= MachineLayout.SPACIOUS.height
-                ? MachineLayout.SPACIOUS
-                : MachineLayout.COMPACT;
+        layout =
+                height >= MachineLayout.SPACIOUS.height
+                        ? MachineLayout.SPACIOUS
+                        : MachineLayout.COMPACT;
         setWindowSize(MachineLayout.WIDTH, layout.height);
         menu.arrangeSlots(layout);
         super.init();
@@ -35,14 +39,14 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
             String[] names = {"Air", "Nitrox", "Trimix", "Heliox"};
 
             for (int i = 0; i < 4; i++) {
-                button(
-                    16 + i * 62,
-                    layout.presetsY,
-                    54,
-                    names[i],
-                    "Select " + names[i] + " mixture",
-                    i
-                );
+                presets[i] =
+                        button(
+                                16 + i * 62,
+                                layout.presetsY,
+                                54,
+                                names[i],
+                                "Select " + names[i] + " mixture",
+                                i);
             }
 
             button(76, layout.mixtureY, 18, "-", "Reduce oxygen by 1%", 5);
@@ -52,48 +56,49 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
         }
 
         if (fills()) {
-            button(
-                110,
-                layout.slotsY,
-                78,
-                "Purge",
-                "Vent the input cylinder before changing its mixture",
-                4
-            );
+            purge =
+                    button(
+                            110,
+                            layout.slotsY,
+                            78,
+                            "Purge",
+                            "Discard all gas in the input cylinder before changing its mixture",
+                            4);
         }
+        updateControls();
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        updateControls();
+    }
+
+    private void updateControls() {
+        GasMix[] mixtures = {GasMix.AIR, GasMix.NITROX, GasMix.TRIMIX, GasMix.HELIOX};
+        for (int i = 0; i < presets.length; i++)
+            if (presets[i] != null) presets[i].setChosen(menu.targetMixture().equals(mixtures[i]));
+        if (purge != null)
+            purge.active = CylinderItem.supply(menu.slots.getFirst().getItem()).remaining() > 0;
     }
 
     private boolean fills() {
         return menu.kind == MachineBlock.Kind.BLENDER || menu.kind == MachineBlock.Kind.COMPRESSOR;
     }
 
-    private void button(
-        int x,
-        int y,
-        int width,
-        String label,
-        String tooltip,
-        int id
-    ) {
-        addRenderableWidget(
-            new CreateButton(
-                leftPos + x,
-                topPos + y,
-                width,
-                label,
-                tooltip,
-                () -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id)
-            )
-        );
+    private CreateButton button(int x, int y, int width, String label, String tooltip, int id) {
+        return addRenderableWidget(
+                new CreateButton(
+                        leftPos + x,
+                        topPos + y,
+                        width,
+                        label,
+                        tooltip,
+                        () -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id)));
     }
 
     @Override
-    protected void renderBg(
-        GuiGraphics g,
-        float partial,
-        int mx,
-        int my
-    ) {
+    protected void renderBg(GuiGraphics g, float partial, int mx, int my) {
         CreatePanel.draw(g, leftPos, topPos, MachineLayout.WIDTH, layout.panelHeight);
         renderPlayerInventory(g, leftPos + 48, topPos + layout.inventoryY);
 
@@ -114,20 +119,15 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
         String heading = font.plainSubstrByWidth(title.getString(), 246);
 
         g.drawString(
-            font,
-            heading,
-            (MachineLayout.WIDTH - font.width(heading)) / 2,
-            5,
-            0x281C11,
-            false
-        );
+                font, heading, (MachineLayout.WIDTH - font.width(heading)) / 2, 5, 0x281C11, false);
         text(
-            g,
-            GasMachine.statusText(menu.data.get(1)),
-            20,
-            26,
-            menu.data.get(1) >= 3 && menu.data.get(1) <= 6 ? 0xFFD16A : 0xFFFFFF
-        );
+                g,
+                GasMachine.statusText(menu.data.get(1)),
+                20,
+                26,
+                menu.data.get(1) == 2 || menu.data.get(1) == 7
+                        ? 0xA7D8BE
+                        : menu.data.get(1) == 0 ? 0xD5DDD8 : 0xFFD16A);
 
         GasMix mix = menu.targetMixture();
 
@@ -138,18 +138,16 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
             var profile = DivingConfig.pressureProfile(minecraft.level.dimension().location());
 
             text(
-                g,
-                String.format(
-                    Locale.ROOT,
-                    "N2 %d%%   Safe depth %.0f-%.0f blocks",
-                    mix.nitrogen(),
-                    Math.ceil(mix.minimumDepth(profile)),
-                    Math.floor(mix.maximumDepth(profile))
-                ),
-                16,
-                layout.depthY,
-                0xFFE2A1
-            );
+                    g,
+                    String.format(
+                            Locale.ROOT,
+                            "N2 %d%%   Safe depth %.0f-%.0f blocks",
+                            mix.nitrogen(),
+                            Math.ceil(mix.minimumDepth(profile)),
+                            Math.floor(mix.maximumDepth(profile))),
+                    16,
+                    layout.depthY,
+                    0xFFE2A1);
         } else {
             int row = layout == MachineLayout.SPACIOUS ? 51 : 43;
 
@@ -157,24 +155,21 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
                 var fluid = menu.storedFluid();
 
                 text(
-                    g,
-                    fluid.isEmpty() ? "Empty gas vessel" : fluid.getHoverName().getString(),
-                    20,
-                    row,
-                    0xFFFFFF
-                );
+                        g,
+                        fluid.isEmpty() ? "Empty gas vessel" : fluid.getHoverName().getString(),
+                        20,
+                        row,
+                        0xFFFFFF);
                 text(g, (menu.data.get(2) & 0xffff) + " / 64000 mB", 20, row + 21, 0xFFFFFF);
                 text(
-                    g,
-                    String.format(
-                        Locale.ROOT,
-                        "Pressure: %.1f / 200 atm",
-                        1 + 199.0 * (menu.data.get(2) & 0xffff) / 64000
-                    ),
-                    20,
-                    row + 42,
-                    0xFFFFFF
-                );
+                        g,
+                        String.format(
+                                Locale.ROOT,
+                                "Pressure: %.1f / 200 atm",
+                                1 + 199.0 * (menu.data.get(2) & 0xffff) / 64000),
+                        20,
+                        row + 42,
+                        0xFFFFFF);
             } else {
                 text(g, "Rotation: " + menu.data.get(0) + " RPM", 20, row, 0xFFFFFF);
                 text(g, "Air: " + menu.data.get(2) + " mB", 20, row + 19, 0xFFFFFF);
@@ -184,12 +179,11 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
                     text(g, "N2: " + menu.data.get(4) + " mB", 20, row + 57, 0xFFFFFF);
                 } else {
                     text(
-                        g,
-                        "Cylinder: " + menu.data.get(8) + " / " + menu.data.get(11),
-                        20,
-                        row + 38,
-                        0xFFFFFF
-                    );
+                            g,
+                            "Cylinder: " + menu.data.get(8) + " / " + menu.data.get(11),
+                            20,
+                            row + 38,
+                            0xFFFFFF);
                 }
             }
         }
@@ -205,49 +199,48 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
     }
 
     @Override
-    protected void renderForeground(
-        GuiGraphics g,
-        int mx,
-        int my,
-        float partial
-    ) {
+    protected void renderForeground(GuiGraphics g, int mx, int my, float partial) {
         super.renderForeground(g, mx, my, partial);
 
-        if (mx < leftPos + 14
-            || mx >= leftPos + 258
-            || my < topPos + 22
-            || my >= topPos + layout.labelsY) {
-            return;
-        }
-
-        if (my < topPos + 38
-            || my >= topPos + layout.depthY
-            || menu.kind == MachineBlock.Kind.SEPARATOR) {
+        boolean overStatus =
+                mx >= leftPos + 14 && mx < leftPos + 258 && my >= topPos + 22 && my < topPos + 38;
+        boolean overDepth =
+                menu.kind == MachineBlock.Kind.BLENDER
+                        && mx >= leftPos + 16
+                        && mx < leftPos + 258
+                        && my >= topPos + layout.depthY
+                        && my < topPos + layout.depthY + 10;
+        if (overStatus || overDepth) {
             var lines = new java.util.ArrayList<Component>();
 
+            if (overDepth) {
+                lines.add(
+                        Component.literal(
+                                "Depth range for this mixture in the current dimension."));
+                lines.add(Component.literal("The cylinder's pressure rating also applies."));
+                g.renderComponentTooltip(font, lines, mx, my);
+                return;
+            }
+
             lines.add(
-                Component.literal(
-                    switch (menu.kind) {
-                        case COMPRESSOR -> "Rear shaft; air output on other faces";
-                        case SEPARATOR -> "Air: top | O2: blue port | N2: green port";
-                        case BLENDER -> "O2: blue port | N2: green port | He: top";
-                        case STORAGE -> "Gas input/output on every face";
-                    }
-                )
-            );
+                    Component.literal(
+                            switch (menu.kind) {
+                                case COMPRESSOR -> "Rear shaft; air output on other faces";
+                                case SEPARATOR -> "Air: top | O2: blue port | N2: green port";
+                                case BLENDER -> "O2: blue port | N2: green port | He: top";
+                                case STORAGE -> "Gas input/output on every face";
+                            }));
 
             if (menu.kind == MachineBlock.Kind.BLENDER) {
                 lines.add(
-                    Component.literal(
-                        "O2 "
-                                + menu.data.get(3)
-                                + " | N2 "
-                                + menu.data.get(4)
-                                + " | He "
-                                + menu.data.get(5)
-                                + " mB"
-                    )
-                );
+                        Component.literal(
+                                "O2 "
+                                        + menu.data.get(3)
+                                        + " | N2 "
+                                        + menu.data.get(4)
+                                        + " | He "
+                                        + menu.data.get(5)
+                                        + " mB"));
                 lines.add(Component.literal(menu.targetMixture().summary()));
             }
 
@@ -255,13 +248,7 @@ public final class MachineScreen extends AbstractSimiContainerScreen<MachineMenu
         }
     }
 
-    private void text(
-        GuiGraphics g,
-        String text,
-        int x,
-        int y,
-        int color
-    ) {
-        g.drawString(font, font.plainSubstrByWidth(text, 258 - x), x, y, color, true);
+    private void text(GuiGraphics g, String text, int x, int y, int color) {
+        g.drawString(font, ScreenText.fit(font, text, 258 - x), x, y, color, false);
     }
 }

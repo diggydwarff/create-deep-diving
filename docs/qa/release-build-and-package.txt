@@ -1,0 +1,22 @@
+Create: Deep Diving — final beta.3 QA packaging
+JAR: create-deep-diving-1.21.1-1.0.0-beta.3.jar
+SHA-256: 0cc044acbbc00926acd572e1094469d0fd2127f238d3db8f7dbcfda40aa609ac
+
+PASS forgiving ascent: normal swimming, repeated up/down adjustments, grace, minimum rise, sustained warnings, recovery, old configs and history resets
+PASS 50500 gas mixture conservation transactions
+PASS 5050 mixtures: repeated low-RPM ratio conservation and partial-buffer boundaries
+PASS retained decompression loading and recovery
+PASS chart contours, soundings and glyph bounds
+PASS single and dual-map traversal coverage within a shared tick budget
+PASS partial-second dive accounting, repeat-sample safety, dry time and session caps
+PASS lamp profiles and invalid ID fallback
+BUILD SUCCESSFUL in 11s
+
+PASS production metadata remains 1.0.0-beta.3
+PASS all 17 compiled QA classes excluded from production JAR
+PASS five corrected production classes match validated main class output
+PASS only checksum-verified Illumination API 1.0 bundled; no test mods or shader pack
+PASS all seven supplied item textures remain pixel-identical and 16x16
+PASS resource checker: 630 JSON resources, model/texture references, 48 colored wearables, recipes and translations
+PASS sign checker: ten 16px symbols plus blank, legacy IDs, alpha/glow, mounts and recipes
+PASS git diff --check

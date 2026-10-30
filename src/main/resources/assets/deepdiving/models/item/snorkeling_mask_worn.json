@@ -5,7 +5,8 @@
     "particle": "deepdiving:item/snorkel_rubber",
     "rubber": "deepdiving:item/snorkel_rubber",
     "teal": "deepdiving:item/snorkel_teal",
-    "glass": "minecraft:block/light_blue_stained_glass"
+    "glass": "minecraft:block/light_blue_stained_glass",
+    "copper": "deepdiving:item/snorkel_copper"
   },
   "display": {
     "head": {
@@ -47,7 +48,7 @@
             9.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "south": {
           "uv": [
@@ -56,7 +57,7 @@
             9.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "east": {
           "uv": [
@@ -65,7 +66,7 @@
             1.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "west": {
           "uv": [
@@ -74,7 +75,7 @@
             1.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "up": {
           "uv": [
@@ -83,7 +84,7 @@
             9.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "down": {
           "uv": [
@@ -92,7 +93,7 @@
             9.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         }
       }
     },
@@ -116,7 +117,7 @@
             9.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "south": {
           "uv": [
@@ -125,7 +126,7 @@
             9.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "east": {
           "uv": [
@@ -134,7 +135,7 @@
             1.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "west": {
           "uv": [
@@ -143,7 +144,7 @@
             1.0,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "up": {
           "uv": [
@@ -152,7 +153,7 @@
             9.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "down": {
           "uv": [
@@ -161,7 +162,7 @@
             9.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         }
       }
     },
@@ -185,7 +186,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "south": {
           "uv": [
@@ -194,7 +195,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "east": {
           "uv": [
@@ -203,7 +204,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "west": {
           "uv": [
@@ -212,7 +213,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "up": {
           "uv": [
@@ -221,7 +222,7 @@
             1.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "down": {
           "uv": [
@@ -230,7 +231,7 @@
             1.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         }
       }
     },
@@ -254,7 +255,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "south": {
           "uv": [
@@ -263,7 +264,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "east": {
           "uv": [
@@ -272,7 +273,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "west": {
           "uv": [
@@ -281,7 +282,7 @@
             1.0,
             2
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "up": {
           "uv": [
@@ -290,7 +291,7 @@
             1.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         },
         "down": {
           "uv": [
@@ -299,7 +300,7 @@
             1.0,
             1.0
           ],
-          "texture": "#rubber"
+          "texture": "#teal"
         }
       }
     },
@@ -701,7 +702,7 @@
             2,
             1
           ],
-          "texture": "#teal"
+          "texture": "#copper"
         },
         "south": {
           "uv": [
@@ -710,7 +711,7 @@
             2,
             1
           ],
-          "texture": "#teal"
+          "texture": "#copper"
         },
         "east": {
           "uv": [
@@ -719,7 +720,7 @@
             1,
             1
           ],
-          "texture": "#teal"
+          "texture": "#copper"
         },
         "west": {
           "uv": [
@@ -728,7 +729,7 @@
             1,
             1
           ],
-          "texture": "#rubber"
+          "texture": "#copper"
         },
         "up": {
           "uv": [
@@ -737,7 +738,7 @@
             2,
             1
           ],
-          "texture": "#teal"
+          "texture": "#copper"
         },
         "down": {
           "uv": [
@@ -746,7 +747,7 @@
             2,
             1
           ],
-          "texture": "#teal"
+          "texture": "#copper"
         }
       }
     },

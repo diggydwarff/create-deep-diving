@@ -9,8 +9,22 @@ import net.minecraft.world.level.Level;
 
 /** Toggle a small local light while this lamp is carried. */
 public final class DivingLampItem extends Item {
+    public final LampProfile profile;
+
     public DivingLampItem(Properties properties) {
+        this(properties, LampProfile.DIVING);
+    }
+
+    public DivingLampItem(Properties properties, LampProfile profile) {
         super(properties.stacksTo(1));
+        this.profile = profile;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context,
+        java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+        lines.add(net.minecraft.network.chat.Component.translatable("tooltip.deepdiving.lamp." + profile.name().toLowerCase(java.util.Locale.ROOT)));
+        lines.add(net.minecraft.network.chat.Component.translatable("tooltip.deepdiving.lamp.toggle"));
     }
 
     @Override

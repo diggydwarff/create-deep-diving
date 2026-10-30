@@ -1,0 +1,30 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:blank_dive_sign",
+    "deepdiving:dive_sign_dive_site",
+    "deepdiving:dive_sign_diver_down",
+    "deepdiving:dive_sign_cave_entrance",
+    "deepdiving:dive_sign_wreck",
+    "deepdiving:dive_sign_training_pool",
+    "deepdiving:dive_sign_snorkeling_area",
+    "deepdiving:dive_sign_swimming_area",
+    "deepdiving:dive_sign_skull_and_crossbones",
+    "deepdiving:dive_sign_grim_reaper",
+    "deepdiving:dive_sign_overhead_environment",
+    "deepdiving:dive_sign_tight_restriction",
+    "deepdiving:dive_sign_strong_current",
+    "deepdiving:dive_sign_poor_visibility",
+    "deepdiving:dive_sign_do_not_enter",
+    "deepdiving:dive_sign_no_swimming",
+    "deepdiving:dive_sign_water_entry",
+    "deepdiving:dive_sign_exit_surface",
+    "deepdiving:dive_sign_decompression_stop",
+    "deepdiving:dive_sign_gas_filling",
+    "deepdiving:dive_sign_equipment_area",
+    "deepdiving:dive_sign_buoyancy_practice",
+    "deepdiving:dive_sign_buddy_check",
+    "deepdiving:dive_sign_guideline_practice",
+    "deepdiving:dive_sign_maximum_depth"
+  ]
+}

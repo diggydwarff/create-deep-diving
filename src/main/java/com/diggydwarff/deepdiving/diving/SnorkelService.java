@@ -1,6 +1,5 @@
 package com.diggydwarff.deepdiving.diving;
 
-import com.diggydwarff.deepdiving.DeepDiving;
 import com.diggydwarff.deepdiving.compat.DeepSeasCompatibility;
 
 import net.minecraft.core.BlockPos;
@@ -21,10 +20,11 @@ public final class SnorkelService {
 
     public static boolean canBreathe(Player player) {
         if (!player.isAlive()
-            || player.isSpectator()
-            || !player.getItemBySlot(EquipmentSlot.HEAD).is(DeepDiving.SNORKEL_MASK.get())
-            || !player.isEyeInFluid(FluidTags.WATER)
-            || DeepSeasCompatibility.inDryCompartment(player)) {
+                || player.isSpectator()
+                || !(player.getItemBySlot(EquipmentSlot.HEAD).getItem()
+                        instanceof com.diggydwarff.deepdiving.equipment.SnorkelMaskItem)
+                || !player.isEyeInFluid(FluidTags.WATER)
+                || DeepSeasCompatibility.inDryCompartment(player)) {
             return false;
         }
 
@@ -72,19 +72,20 @@ public final class SnorkelService {
             // Partially filled water has air inside the same block. Check the
             // actual fluid height instead of treating that whole block as wet.
             if (!fluidAbove.isEmpty()
-                && air.y < airPosition.getY() + fluidAbove.getHeight(level, airPosition)) {
+                    && air.y < airPosition.getY() + fluidAbove.getHeight(level, airPosition)) {
                 continue;
             }
 
             // Waterlogged slabs, closed trapdoors and glass ceilings still
             // obstruct the tube. Plants and other non-colliding blocks do not.
-            var obstruction = level.clip(new ClipContext(
-                eyes,
-                air,
-                ClipContext.Block.COLLIDER,
-                ClipContext.Fluid.NONE,
-                player
-            ));
+            var obstruction =
+                    level.clip(
+                            new ClipContext(
+                                    eyes,
+                                    air,
+                                    ClipContext.Block.COLLIDER,
+                                    ClipContext.Fluid.NONE,
+                                    player));
 
             return obstruction.getType() == HitResult.Type.MISS;
         }

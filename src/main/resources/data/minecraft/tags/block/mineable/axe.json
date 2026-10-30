@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:dive_site_sign",
+    "deepdiving:dive_site_wall_sign"
+  ]
+}

@@ -1,0 +1,11 @@
+PASS connected integrated-server player earns preparation, first-dive and backup advancements without a regulator
+PASS actual server packet and visible custom site marker: rc1-bundle-normal-page1.png
+PASS actual server packet and visible custom site marker: rc1-bundle-normal-page2.png
+PASS actual server packet and visible custom site marker: rc1-bundle-small-page2.png
+PASS actual server packet and visible custom site marker: rc1-bundle-small-page1.png
+PASS metal site signs rendered and blue fins creative-tab icon
+PASS creative equipment retains cylinders and hides the retired regulator
+PASS native mouth exhaust: five-to-seven opening bubbles, outward puff and sparse single-bubble trail with direct cylinder supply
+PASS real client bubble cohorts: varied ascent, gradual lifetime/surface fades, staggered dissolution and dry-air removal
+PASS native idle fins: three-block-stale target rejection, immediate local rest, manual release and recapture after movement
+PASS integrated bundle paging, marker network identity and foreground pixels at both sizes, metal signs, item models, blue tab icon and persistent rising bubbles

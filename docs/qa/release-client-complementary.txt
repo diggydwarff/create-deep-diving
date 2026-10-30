@@ -1,0 +1,11 @@
+PASS worn-gear-review.png
+INFO DIVING materialLights=1
+PASS lamp-balanced.png
+INFO FLOOD materialLights=1
+PASS lamp-flood.png
+INFO LONG_THROW materialLights=1
+PASS lamp-long-throw.png
+INFO INSPECTION materialLights=1
+PASS lamp-inspection.png
+PASS held-depth-map.png
+PASS lamp-off.png

@@ -1,0 +1,15 @@
+{
+  "loader": "neoforge:separate_transforms",
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "particle": "deepdiving:item/gray_snorkeling_mask"
+  },
+  "base": {
+    "parent": "deepdiving:item/gray_snorkeling_mask_icon"
+  },
+  "perspectives": {
+    "head": {
+      "parent": "deepdiving:item/gray_snorkeling_mask_worn"
+    }
+  }
+}

@@ -11,46 +11,44 @@ import net.minecraft.world.item.ItemStack;
 /** Progression teaches preparation and backup use without rewarding dangerous exposure. */
 public final class DivingAdvancements {
     public static void check(
-        ServerPlayer player,
-        com.diggydwarff.deepdiving.physiology.DiverState state
-    ) {
-        boolean regulator = BreathingEquipment.carries(player, DeepDiving.REGULATOR.get());
+            ServerPlayer player, com.diggydwarff.deepdiving.physiology.DiverState state) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
 
-        if (regulator) {
+        if (chest.getItem() instanceof CylinderItem
+                || player.getOffhandItem().getItem() instanceof CylinderItem
+                || player.getInventory().items.stream()
+                        .anyMatch(stack -> stack.getItem() instanceof CylinderItem)) {
             award(player, "root");
         }
 
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-
-        boolean equipped = regulator
-            && BreathingEquipment.helmet(player)
-            && chest.getItem() instanceof CylinderItem
-            && CylinderItem.supply(chest).remaining() > 0
-            && BreathingEquipment.carries(player, DeepDiving.COMPUTER.get());
+        boolean equipped =
+                BreathingEquipment.helmet(player)
+                        && chest.getItem() instanceof CylinderItem
+                        && CylinderItem.supply(chest).remaining() > 0
+                        && BreathingEquipment.carries(player, DeepDiving.COMPUTER.get());
 
         if (equipped) {
             award(player, "ready_to_dive");
 
             if (state.underwater
-                && state.supplied
-                && state.oxygenation >= 70
-                && state.pressure <= BreathingEquipment.protectionRating(player)
-                && (state.warnings & (DiverService.HYPOXIA | DiverService.TOXICITY)) == 0) {
+                    && state.supplied
+                    && state.oxygenation >= 70
+                    && state.pressure <= BreathingEquipment.protectionRating(player)
+                    && (state.warnings & (DiverService.HYPOXIA | DiverService.TOXICITY)) == 0) {
                 award(player, "first_dive");
             }
         }
 
-        if (regulator
-            && (player.getInventory().items.stream().anyMatch(DivingAdvancements::backup)
-                || backup(player.getOffhandItem()))) {
+        if (player.getInventory().items.stream().anyMatch(DivingAdvancements::backup)
+                || backup(player.getOffhandItem())) {
             award(player, "backup_ready");
         }
     }
 
     private static boolean backup(ItemStack stack) {
         return stack.getItem() instanceof CylinderItem
-            && CylinderItem.supply(stack).backupEnabled()
-            && CylinderItem.supply(stack).remaining() > 0;
+                && CylinderItem.supply(stack).backupEnabled()
+                && CylinderItem.supply(stack).remaining() > 0;
     }
 
     private static void award(ServerPlayer player, String name) {

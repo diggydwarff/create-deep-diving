@@ -1,12 +1,12 @@
 {
   "criteria": {
-    "has_brass": {
+    "has_copper": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
-              "create:brass_ingot"
+              "minecraft:copper_ingot"
             ]
           }
         ]
@@ -15,7 +15,7 @@
   },
   "requirements": [
     [
-      "has_brass"
+      "has_copper"
     ]
   ],
   "rewards": {

@@ -1,0 +1,6 @@
+PASS worn-gear-review.png
+PASS lamp-balanced.png
+PASS lamp-flood.png
+PASS lamp-long-throw.png
+PASS lamp-inspection.png
+PASS held-depth-map.png

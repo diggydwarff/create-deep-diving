@@ -26,14 +26,24 @@ public final class DivingLampService {
     private static final ArrayDeque<Cleanup> CLEANUP = new ArrayDeque<>();
 
     private static LampState state(ServerPlayer player) {
+        var lamp = selected(player);
         boolean active = player.isAlive() && !player.isSpectator()
             && player.getPersistentData().getBoolean("deepdiving.lamp")
-            && BreathingEquipment.carries(player, DeepDiving.LAMP.get());
+            && !lamp.isEmpty();
 
-        boolean held = player.getMainHandItem().is(DeepDiving.LAMP.get())
-            || player.getOffhandItem().is(DeepDiving.LAMP.get());
+        boolean held = player.getMainHandItem().getItem() instanceof DivingLampItem
+            || player.getOffhandItem().getItem() instanceof DivingLampItem;
 
-        return new LampState(player.getUUID(), player.level().dimension().location(), active, held);
+        int profile = lamp.getItem() instanceof DivingLampItem item ? item.profile.ordinal() : 0;
+        return new LampState(player.getUUID(), player.level().dimension().location(), active, held, profile);
+    }
+
+    /** A held lamp wins over stowed spares; at most one light source belongs to each diver. */
+    public static net.minecraft.world.item.ItemStack selected(net.minecraft.world.entity.player.Player player) {
+        if (player.getMainHandItem().getItem() instanceof DivingLampItem) return player.getMainHandItem();
+        if (player.getOffhandItem().getItem() instanceof DivingLampItem) return player.getOffhandItem();
+        for (var stack : player.getInventory().items) if (stack.getItem() instanceof DivingLampItem) return stack;
+        return net.minecraft.world.item.ItemStack.EMPTY;
     }
 
     public static void update(ServerPlayer player) {

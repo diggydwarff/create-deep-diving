@@ -10,9 +10,21 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public final class DivingFinsItem extends Item {
+public final class DivingFinsItem extends Item implements Equipable {
+    public final DyeColor color;
+
     public DivingFinsItem(Properties properties) {
+        this(properties, DyeColor.CYAN);
+    }
+
+    public DivingFinsItem(Properties properties, DyeColor color) {
         super(properties.stacksTo(1));
+        this.color = color;
+    }
+
+    @Override
+    public EquipmentSlot getEquipmentSlot() {
+        return EquipmentSlot.FEET;
     }
 
     @Override
@@ -26,14 +38,7 @@ public final class DivingFinsItem extends Item {
         Player player,
         InteractionHand hand
     ) {
-        if (!level.isClientSide) {
-            ItemStack old = player.getItemBySlot(EquipmentSlot.FEET);
-
-            player.setItemSlot(EquipmentSlot.FEET, player.getItemInHand(hand).copy());
-            player.setItemInHand(hand, old);
-        }
-
-        return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
+        return swapWithEquipmentSlot(this, level, player, hand);
     }
 
     @Override

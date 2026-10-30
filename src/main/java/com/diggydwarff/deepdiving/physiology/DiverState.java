@@ -12,6 +12,8 @@ import net.minecraft.world.phys.Vec3;
 public final class DiverState {
     public final TissueModel tissues = new TissueModel();
 
+    public final AscentMonitor ascentMonitor = new AscentMonitor();
+
     public double oxygenation = 100;
 
     public double toxicity;

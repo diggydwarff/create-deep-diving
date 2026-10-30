@@ -1,0 +1,7 @@
+PASS forgiving ascent: normal swimming, repeated up/down adjustments, grace, minimum rise, sustained warnings, recovery, old configs and history resets
+PASS 50500 gas mixture conservation transactions
+PASS retained decompression loading and recovery
+PASS chart contours, soundings and glyph bounds
+PASS single and dual-map traversal coverage within a shared tick budget
+PASS partial-second dive accounting, repeat-sample safety, dry time and session caps
+PASS lamp profiles and invalid ID fallback

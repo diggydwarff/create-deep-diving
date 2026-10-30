@@ -114,6 +114,29 @@ public final class DivingConfig {
 
     public static final ModConfigSpec.BooleanValue HUD;
 
+    public static final ModConfigSpec.BooleanValue COMPACT_HUD;
+
+    public enum HudSize implements net.neoforged.neoforge.common.TranslatableEnum {
+        SMALL(.75f),
+        NORMAL(1f),
+        LARGE(1.25f),
+        EXTRA_LARGE(1.5f);
+
+        public final float scale;
+
+        HudSize(float scale) {
+            this.scale = scale;
+        }
+
+        @Override
+        public net.minecraft.network.chat.Component getTranslatedName() {
+            return net.minecraft.network.chat.Component.translatable(
+                "deepdiving.hud_size." + name().toLowerCase(java.util.Locale.ROOT));
+        }
+    }
+
+    public static final ModConfigSpec.EnumValue<HudSize> HUD_SIZE;
+
     public static final ModConfigSpec.BooleanValue AUTO_PRESSURE_COMPAT;
 
     public static final ModConfigSpec.BooleanValue SUDDEN_PRESSURE_INJURY;
@@ -169,6 +192,10 @@ public final class DivingConfig {
     public static final ModConfigSpec.DoubleValue DAMAGE_MULTIPLIER;
 
     public static final ModConfigSpec.DoubleValue SAFE_ASCENT;
+
+    public static final ModConfigSpec.DoubleValue ASCENT_WARNING_GRACE;
+
+    public static final ModConfigSpec.DoubleValue ASCENT_WARNING_RISE;
 
     public static final ModConfigSpec.DoubleValue REFERENCE_DEPTH;
 
@@ -332,7 +359,12 @@ public final class DivingConfig {
         DEPTH_HOLD = builder.comment("Allow the depth-hold hotkey with diving equipment, a computer and breathing gas.")
             .define("allowDepthHold", true);
         DAMAGE_MULTIPLIER = builder.defineInRange("damageMultiplier", 1.0, 0, 10);
-        SAFE_ASCENT = builder.defineInRange("maximumAscentBlocksPerSecond", 0.75, 0.1, 10);
+        SAFE_ASCENT = builder.comment("Sustained ascent threshold in blocks per second; short adjustments use the grace settings below.")
+            .defineInRange("maximumAscentBlocksPerSecond", 2.5, 0.1, 10);
+        ASCENT_WARNING_GRACE = builder.comment("Consecutive seconds above the ascent threshold before warning. Slowing, stopping or descending resets this timer.")
+            .defineInRange("ascentWarningGraceSeconds", 3.0, 0, 30);
+        ASCENT_WARNING_RISE = builder.comment("Minimum blocks gained during that continuous fast ascent before warning. Decompression ceilings remain independent.")
+            .defineInRange("ascentWarningMinimumRise", 4.0, 0, 64);
         SURFACE_SEARCH_LIMIT = builder.comment("Bounded local surface search, cached per diver for five seconds.")
             .defineInRange("surfaceSearchLimit", 2048, 64, 8192);
         builder.push("sediment");
@@ -357,6 +389,11 @@ public final class DivingConfig {
         SERVER = builder.build();
         builder = new ModConfigSpec.Builder();
         HUD = builder.define("showHud", true);
+        COMPACT_HUD = builder.comment("Use the smaller dive computer HUD. Disable for the expanded readout.")
+            .define("compactHud", true);
+        HUD_SIZE = builder.comment("HUD size: SMALL 75%, NORMAL 100%, LARGE 125%, EXTRA_LARGE 150%.",
+            "Independent of Minecraft GUI scale. The HUD stays inside the screen.")
+            .defineEnum("hudSize", HudSize.NORMAL);
         ORBIT_CAMERA = builder.comment(
             "Add an independent swimming orbit view after the normal front view in the perspective cycle."
         )

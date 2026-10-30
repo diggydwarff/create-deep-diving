@@ -1,0 +1,22 @@
+Create: Deep Diving — Ponder and UI polish
+JAR: create-deep-diving-1.21.1-1.0.0-beta.3.jar
+SHA-256: 001608ef885dd523fe63831b79fc5bcd58f7366e59b14c6225039e694011e815
+
+PASS forgiving ascent: normal swimming, repeated up/down adjustments, grace, minimum rise, sustained warnings, recovery, old configs and history resets
+PASS 50500 gas mixture conservation transactions
+PASS 5050 mixtures: repeated low-RPM ratio conservation and partial-buffer boundaries
+PASS retained decompression loading and recovery
+PASS chart contours, soundings and glyph bounds
+PASS single and dual-map traversal coverage within a shared tick budget
+PASS partial-second dive accounting, repeat-sample safety, dry time and session caps
+PASS lamp profiles and invalid ID fallback
+BUILD SUCCESSFUL in 9s
+
+PASS all production classes match the validated main output; every compiled QA class excluded
+PASS all seven revised Ponder structures and current tutorial code packaged
+PASS only checksum-verified Illumination API 1.0 bundled
+PASS all seven supplied 16x16 icons preserved pixel-for-pixel
+PASS version remains beta.3 and protocol remains 13
+PASS 630 JSON resources, model/texture references, 48 colored wearables, recipes, translations and worn texture sizes
+PASS ten distinct 16px pictograms and a blank panel; retired IDs loadable, crisp alpha, selective glow, all mount variants, core-only recipes and >=6:1 contrast
+PASS git diff --check

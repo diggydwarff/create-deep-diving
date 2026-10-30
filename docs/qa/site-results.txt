@@ -1,0 +1,5 @@
+PASS site-map-held.png
+PASS site-map-frames.png
+PASS site-map-table-zoom.png
+PASS site-map-table-copy.png
+PASS site-map-table-lock.png

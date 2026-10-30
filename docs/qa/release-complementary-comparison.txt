@@ -1,0 +1,8 @@
+Native Iris 1.8.8 / Sodium 0.6.13 / Complementary Unbound r5.9.3, POTATO preset, 640x480, Mesa llvmpipe.
+Same submerged camera and stone receiver within all four lamp ranges.
+Central receiver RGB mean with lamp off: 10.542 (0-255 scale).
+PASS balanced: central receiver RGB mean 37.816, increase 27.273; materialLights=1.
+PASS flood: central receiver RGB mean 41.305, increase 30.763; materialLights=1.
+PASS long-throw: central receiver RGB mean 29.072, increase 18.529; materialLights=1.
+PASS inspection: central receiver RGB mean 37.548, increase 27.005; materialLights=1.
+Manual inspection: distinct beam widths; inactive lamp produces no collected light source. Upstream shader warnings and software-renderer Flywheel fallback remain in the runtime log. This is a single-pack visual smoke test, not a GPU performance certification.

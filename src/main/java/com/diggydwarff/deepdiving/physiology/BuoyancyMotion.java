@@ -1,9 +1,18 @@
 package com.diggydwarff.deepdiving.physiology;
 
-/** Visible wave-like motion over eight seconds; never bob above a decompression ceiling. */
+/** Subtle idle motion over ten seconds; never bob above a decompression ceiling. */
 public final class BuoyancyMotion {
+    /**
+     * Passive fins settle near the diver instead of chasing an old target after lag or movement.
+     */
+    public static double restTarget(double currentY, double previousTargetY) {
+        return Double.isFinite(previousTargetY) && Math.abs(previousTargetY - currentY) <= .5
+                ? previousTargetY
+                : currentY;
+    }
+
     public static double bobTarget(double baseY, long time, double roomAbove) {
-        return baseY + Math.min(Math.max(0, roomAbove), .30 * Math.sin(time * Math.PI * 2 / 160));
+        return baseY + Math.min(Math.max(0, roomAbove), .08 * Math.sin(time * Math.PI * 2 / 200));
     }
 
     public static double horizontal(double current, double target) {

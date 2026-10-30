@@ -1,0 +1,12 @@
+PASS 48 real crafting recipes assemble the requested dye variants
+PASS all16 gear variants retain equipment behavior
+PASS tagged oxygen normalization, Deep Seas tag membership and alias round-trip accounting
+PASS fluid port transaction conservation and invalid input rejection
+PASS chemical tag reloads, long quantities and directional blender ports
+PASS real Mekanism chemical capability, oxygen round trip, simulation and invalid gas rejection
+PASS dual-wielded chart progress and duplicate/tick budget protection
+PASS bathymetry, no forced chunk loading and persistent map identity
+PASS 24 dive sign designs, geometry, stonecutter transactions, component persistence, edit validation and map labels
+PASS site signs, marker persistence, frame placement and real cartography operations
+PASS stable dive numbering, dropped-stack closure and interruption accounting
+PASS dive log recording, gas usage, bounded history and persistence

@@ -1,5 +1,6 @@
 package com.diggydwarff.deepdiving.client;
 
+import com.diggydwarff.deepdiving.config.DivingConfig;
 import com.diggydwarff.deepdiving.gas.GasMix;
 import com.diggydwarff.deepdiving.network.DivingPackets;
 
@@ -17,6 +18,71 @@ final class OledDisplay {
     static final int HUD_WIDTH = 192;
 
     static final int HUD_HEIGHT = 156;
+
+    static final int COMPACT_WIDTH = 168;
+
+    static final int COMPACT_HEIGHT = 112;
+
+    record Placement(int x, int y, int width, int height, float scale) {}
+
+    static Placement placement(int guiWidth, int guiHeight, boolean compact, float requestedScale,
+            int offsetX, int offsetY) {
+        if (guiWidth < 1 || guiHeight < 1) return new Placement(0, 0, 0, 0, 0);
+        int width = (compact ? COMPACT_WIDTH : HUD_WIDTH) + CreatePanel.HEADER_OVERHANG * 2;
+        int height = compact ? COMPACT_HEIGHT : HUD_HEIGHT;
+        float scale = Math.min(requestedScale,
+            Math.min(guiWidth / (float) width, guiHeight / (float) height));
+        int scaledWidth = Math.min(guiWidth, (int) Math.ceil(width * scale));
+        int scaledHeight = Math.min(guiHeight, (int) Math.ceil(height * scale));
+        return new Placement(Math.clamp(offsetX, 0, guiWidth - scaledWidth),
+            Math.clamp(offsetY, 0, guiHeight - scaledHeight), scaledWidth, scaledHeight, scale);
+    }
+
+    static void hud(GuiGraphics g, DivingPackets.Snapshot s) {
+        boolean compact = DivingConfig.COMPACT_HUD.get();
+        var p = placement(g.guiWidth(), g.guiHeight(), compact, DivingConfig.HUD_SIZE.get().scale,
+            DivingConfig.HUD_X.get(), DivingConfig.HUD_Y.get());
+        if (p.scale() <= 0) return;
+        g.pose().pushPose();
+        g.pose().translate(p.x() + CreatePanel.HEADER_OVERHANG * p.scale(), p.y(), 0);
+        g.pose().scale(p.scale(), p.scale(), 1);
+        if (compact) compactHud(g, s);
+        else hud(g, 0, 0, s);
+        g.pose().popPose();
+    }
+
+    private static void compactHud(GuiGraphics g, DivingPackets.Snapshot s) {
+        frame(g, 0, 0, COMPACT_WIDTH, COMPACT_HEIGHT);
+        text(g, "DEPTH / BLOCKS", 12, 9, 96, LABEL);
+        text(g, "ATM", 118, 9, 38, LABEL);
+        fittedValue(g, DiveReadout.format("%.1f", s.depth()), 12, 22, 1.45f, 96, WHITE);
+        fittedValue(g, DiveReadout.format("%.1f", s.pressure()), 118, 24, 1.1f, 38, WHITE);
+        text(g, "GAS " + DiveReadout.gasTime(s), 12, 42, 88, WHITE);
+        fittedValue(g, s.ceiling() > 0 ? DiveReadout.format("STOP %.0fb", s.ceiling())
+                : "NDL " + (s.ndl() >= 3600 ? "60m+" : s.ndl() / 60 + "m"),
+            101, 42, 1, 55, s.ceiling() > 0 ? ALERT : WHITE);
+        text(g, DiveReadout.hudSecondary(s),
+            12, 55, 88, s.ceiling() > 0 ? ALERT : LABEL);
+        fittedValue(g, DiveReadout.format("%+.1f b/s", s.ascent()), 105, 55, 1, 51, WHITE);
+        text(g, DiveReadout.compactAscentStatus(s), 12, 68, 144,
+            (s.warnings() & com.diggydwarff.deepdiving.diving.DiverService.ASCENT) != 0
+                || s.ceiling() > 0 ? ALERT : LABEL);
+        ascentBar(g, 12, 81, 144, s);
+        rule(g, 12, 87, 144);
+        text(g, DiveReadout.hudWarning(s), 12, 92, 144,
+            s.warnings() == 0 ? LABEL : ALERT);
+    }
+
+    private static void fittedValue(GuiGraphics g, String text, int x, int y,
+            float maximumScale, int width, int color) {
+        var font = Minecraft.getInstance().font;
+        float scale = Math.min(maximumScale, width / (float) Math.max(1, font.width(text)));
+        g.pose().pushPose();
+        g.pose().translate(x, y, 0);
+        g.pose().scale(scale, scale, 1);
+        g.drawString(font, text, 0, 0, color, false);
+        g.pose().popPose();
+    }
 
     static void frame(
         GuiGraphics g,
@@ -84,7 +150,8 @@ final class OledDisplay {
             y,
             x + (int) (width * fraction / 2),
             y + 5,
-            fraction > 1 ? 0xFFFFD477 : 0xFF99C9C6
+            (s.warnings() & com.diggydwarff.deepdiving.diving.DiverService.ASCENT) != 0
+                    ? 0xFFFFD477 : 0xFF99C9C6
         );
         g.fill(x + width / 2, y - 2, x + width / 2 + 1, y + 7, 0xFFF8FCFF);
     }
@@ -133,7 +200,8 @@ final class OledDisplay {
             12,
             118,
             168,
-            s.ascent() > s.safeAscent() || s.ceiling() > 0 ? ALERT : LABEL
+            (s.warnings() & com.diggydwarff.deepdiving.diving.DiverService.ASCENT) != 0
+                    || s.ceiling() > 0 ? ALERT : LABEL
         );
 
         var warnings = DiveReadout.warnings(s);

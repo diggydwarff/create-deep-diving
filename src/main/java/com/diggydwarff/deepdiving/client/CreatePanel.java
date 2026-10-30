@@ -6,6 +6,8 @@ import net.minecraft.client.gui.GuiGraphics;
 
 /** Draw directly from Create's stock-keeper texture; no copied or substitute GUI assets. */
 final class CreatePanel {
+    static final int HEADER_OVERHANG = 8;
+
     static void draw(
         GuiGraphics g,
         int x,
@@ -13,7 +15,7 @@ final class CreatePanel {
         int width,
         int height
     ) {
-        piece(g, x - 8, y, width + 16, 18, 16, 0, 224, 18);
+        piece(g, x - HEADER_OVERHANG, y, width + HEADER_OVERHANG * 2, 18, 16, 0, 224, 18);
 
         for (int offset = 18; offset < height - 10; offset += 20) {
             int h = Math.min(20, height - 10 - offset);

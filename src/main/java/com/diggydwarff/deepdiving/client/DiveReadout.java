@@ -13,9 +13,11 @@ public final class DiveReadout {
     }
 
     static List<String> warnings(Snapshot s) {
-        var lines = new ArrayList<String>();
+        return warnings(s.warnings(), s.ceiling() > 0);
+    }
 
-        int flags = s.warnings();
+    static List<String> warnings(int flags, boolean decompressionStop) {
+        var lines = new ArrayList<String>();
 
         if ((flags & DiverService.BLACKOUT) != 0) {
             lines.add("BLACKOUT - restore oxygen");
@@ -50,7 +52,7 @@ public final class DiveReadout {
         }
 
         if ((flags & DiverService.DECO) != 0) {
-            lines.add(s.ceiling() > 0 ? "DECOMPRESSION REQUIRED" : "DECOMPRESSION RECOVERY");
+            lines.add(decompressionStop ? "DECOMPRESSION REQUIRED" : "DECOMPRESSION RECOVERY");
         }
 
         if ((flags & DiverService.LOW_GAS) != 0) {
@@ -102,30 +104,61 @@ public final class DiveReadout {
     }
 
     static String ascentStatus(Snapshot s) {
-        if (s.ascent() > s.safeAscent()) {
+        return ascentStatus(s, false);
+    }
+
+    static String compactAscentStatus(Snapshot s) {
+        return ascentStatus(s, true);
+    }
+
+    static String hudWarning(Snapshot s) {
+        var warnings = warnings(s);
+        if (warnings.isEmpty()) return "STATUS NORMAL";
+        String first =
+                switch (warnings.getFirst()) {
+                    case "BLACKOUT - restore oxygen" -> "BLACKOUT: NEED OXYGEN";
+                    case "SUDDEN PRESSURE EXPOSURE" -> "PRESSURE SHOCK";
+                    case "EQUIPMENT PRESSURE LIMIT" -> "PRESSURE LIMIT";
+                    case "BACKUP CYLINDER ACTIVE" -> "BACKUP ACTIVE";
+                    default -> warnings.getFirst();
+                };
+        return first + (warnings.size() > 1 ? " +" + (warnings.size() - 1) : "");
+    }
+
+    static String hudSecondary(Snapshot s) {
+        if (s.ceiling() <= 0)
+            return new com.diggydwarff.deepdiving.gas.GasMix(s.oxygen(), s.helium()).name();
+        if ((s.warnings() & DiverService.NO_SUPPLY) != 0) return "NO GAS";
+        if (s.depth() + .05 < s.ceiling() || s.stopSeconds() < 0) return "NEXT --";
+        return "NEXT " + stopTime(s);
+    }
+
+    private static String ascentStatus(Snapshot s, boolean compact) {
+        if (s.ceiling() > 0 && s.depth() + .05 < s.ceiling()) {
+            return format(
+                    compact ? "DESCEND TO %.0fb" : "DESCEND TO STOP %.0f BLOCKS", s.ceiling());
+        }
+
+        if ((s.warnings() & DiverService.ASCENT) != 0) {
             return "SLOW YOUR ASCENT";
         }
 
-        if (s.ceiling() > 0 && s.depth() + .05 < s.ceiling()) {
-            return format("DESCEND TO STOP %.0f BLOCKS", s.ceiling());
-        }
-
         if (s.ceiling() > 0
-            && s.stopSeconds() < 0
-            && (s.warnings() & DiverService.NO_SUPPLY) == 0) {
-            return format("MOVE TO STOP %.0f BLOCKS", s.ceiling());
+                && s.stopSeconds() < 0
+                && (s.warnings() & DiverService.NO_SUPPLY) == 0) {
+            return format(compact ? "MOVE TO STOP %.0fb" : "MOVE TO STOP %.0f BLOCKS", s.ceiling());
         }
 
         if (s.depthHold()) {
-            return format("DEPTH HOLD %.1f BLOCKS", s.heldDepth());
+            return format(compact ? "DEPTH HOLD %.1fb" : "DEPTH HOLD %.1f BLOCKS", s.heldDepth());
         }
 
         if (s.finsFloating()) {
-            return format("FINS FLOAT %.1f BLOCKS", s.finDepth());
+            return format(compact ? "FINS FLOAT %.1fb" : "FINS FLOAT %.1f BLOCKS", s.finDepth());
         }
 
         if (s.ceiling() > 0) {
-            return format("HOLD STOP %.0f BLOCKS", s.ceiling());
+            return format(compact ? "HOLD STOP %.0fb" : "HOLD STOP %.0f BLOCKS", s.ceiling());
         }
 
         if (s.ascent() < -.05) {
@@ -133,7 +166,7 @@ public final class DiveReadout {
         }
 
         if (s.ascent() > .05) {
-            return "ASCENDING WITHIN LIMIT";
+            return compact || s.ascent() > s.safeAscent() ? "ASCENDING" : "ASCENDING WITHIN LIMIT";
         }
 
         return "DEPTH STEADY";

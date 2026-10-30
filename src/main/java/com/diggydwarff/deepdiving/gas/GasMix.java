@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** Integer percentages keep the filling transaction exact and tooltips readable. */
 public record GasMix(int oxygen, int helium) {
@@ -17,23 +19,25 @@ public record GasMix(int oxygen, int helium) {
 
     private record Percentages(int oxygen, int helium) {}
 
-    public static final Codec<GasMix> CODEC = RecordCodecBuilder.<Percentages>create(
-        i -> i.group(
-            Codec.intRange(1, 100)
-                .fieldOf("oxygen")
-                .forGetter(Percentages::oxygen),
-            Codec.intRange(0, 99)
-                .fieldOf("helium")
-                .forGetter(Percentages::helium)
-        )
-            .apply(i, Percentages::new)
-    )
-        .comapFlatMap(
-            p -> p.oxygen + p.helium <= 100
-                    ? com.mojang.serialization.DataResult.success(new GasMix(p.oxygen, p.helium))
-                    : com.mojang.serialization.DataResult.error(() -> "Gas fractions exceed 100%"),
-            m -> new Percentages(m.oxygen, m.helium)
-        );
+    public static final Codec<GasMix> CODEC =
+            RecordCodecBuilder.<Percentages>create(
+                            i ->
+                                    i.group(
+                                                    Codec.intRange(1, 100)
+                                                            .fieldOf("oxygen")
+                                                            .forGetter(Percentages::oxygen),
+                                                    Codec.intRange(0, 99)
+                                                            .fieldOf("helium")
+                                                            .forGetter(Percentages::helium))
+                                            .apply(i, Percentages::new))
+                    .comapFlatMap(
+                            p ->
+                                    p.oxygen + p.helium <= 100
+                                            ? com.mojang.serialization.DataResult.success(
+                                                    new GasMix(p.oxygen, p.helium))
+                                            : com.mojang.serialization.DataResult.error(
+                                                    () -> "Gas fractions exceed 100%"),
+                            m -> new Percentages(m.oxygen, m.helium));
 
     public GasMix {
         if (oxygen < 1 || oxygen > 100 || helium < 0 || helium > 100 - oxygen) {
@@ -41,33 +45,72 @@ public record GasMix(int oxygen, int helium) {
         }
     }
 
+    // The percentage domain contains only 5,050 possible mixtures; the cache is bounded by that
+    // domain.
+    private static final Map<GasMix, int[][]> FLOW_PREFIXES = new ConcurrentHashMap<>();
+
     public int[] constituents(int amount) {
-        if (amount < 0 || amount > 1000000) {
-            throw new IllegalArgumentException("Invalid gas transaction quantity");
+        return constituents(amount, 0);
+    }
+
+    /**
+     * A monotonic 100-unit flow cycle preserves every constituent across repeated small batches.
+     */
+    public int[] constituents(int amount, int phase) {
+        if (amount < 0 || amount > 1000000 || phase < 0 || phase >= 100) {
+            throw new IllegalArgumentException("Invalid gas transaction quantity or phase");
         }
-
-        int[] units = {amount * oxygen / 100, amount * nitrogen() / 100, amount * helium / 100};
-
-        int[] fractions = {amount * oxygen % 100, amount * nitrogen() % 100, amount * helium % 100};
-
-        for (int remaining = amount - units[0] - units[1] - units[2]; remaining > 0; remaining--) {
-            int best = 0;
-
-            for (int i = 1; i < 3; i++) {
-                if (fractions[i] > fractions[best]) {
-                    best = i;
-                }
-            }
-
-            units[best]++;
-            fractions[best] = -1;
+        int[][] prefix = FLOW_PREFIXES.computeIfAbsent(this, GasMix::flowPrefix);
+        int end = phase + amount;
+        int[] percentages = {oxygen, nitrogen(), helium};
+        int[] units = new int[3];
+        for (int gas = 0; gas < 3; gas++) {
+            units[gas] = end / 100 * percentages[gas] + prefix[gas][end % 100] - prefix[gas][phase];
         }
-
         return units;
+    }
+
+    private int[][] flowPrefix() {
+        int[] percentages = {oxygen, nitrogen(), helium};
+        int[][] prefix = new int[3][101];
+        for (int unit = 1; unit <= 100; unit++) {
+            int best = 0;
+            for (int gas = 0; gas < 3; gas++) {
+                prefix[gas][unit] = prefix[gas][unit - 1];
+                if (unit * percentages[gas] - prefix[gas][unit - 1] * 100
+                        > unit * percentages[best] - prefix[best][unit - 1] * 100) best = gas;
+            }
+            prefix[best][unit]++;
+        }
+        return prefix;
     }
 
     public int nitrogen() {
         return 100 - oxygen - helium;
+    }
+
+    public int availableAmount(int requested, int[] available) {
+        return availableAmount(requested, available, 0);
+    }
+
+    /** Largest producible partial batch at the current position in the conserved flow cycle. */
+    public int availableAmount(int requested, int[] available, int phase) {
+        if (requested < 0
+                || requested > 1000000
+                || available.length != 3
+                || phase < 0
+                || phase >= 100) throw new IllegalArgumentException("Invalid gas batch");
+        for (int quantity : available)
+            if (quantity < 0) throw new IllegalArgumentException("Negative gas buffer");
+        int low = 0, high = requested;
+        while (low < high) {
+            int candidate = (low + high + 1) / 2;
+            int[] needed = constituents(candidate, phase);
+            if (needed[0] <= available[0] && needed[1] <= available[1] && needed[2] <= available[2])
+                low = candidate;
+            else high = candidate - 1;
+        }
+        return low;
     }
 
     public double oxygenFraction() {
@@ -100,14 +143,12 @@ public record GasMix(int oxygen, int helium) {
 
     public double maximumDepth(com.diggydwarff.deepdiving.config.PressureProfile profile) {
         return profile.depthAtPressure(
-            com.diggydwarff.deepdiving.config.DivingConfig.MAX_OXYGEN.get() / oxygenFraction()
-        );
+                com.diggydwarff.deepdiving.config.DivingConfig.MAX_OXYGEN.get() / oxygenFraction());
     }
 
     public double minimumDepth(com.diggydwarff.deepdiving.config.PressureProfile profile) {
         return profile.depthAtPressure(
-            com.diggydwarff.deepdiving.config.DivingConfig.MIN_OXYGEN.get() / oxygenFraction()
-        );
+                com.diggydwarff.deepdiving.config.DivingConfig.MIN_OXYGEN.get() / oxygenFraction());
     }
 
     public String name() {
@@ -124,11 +165,6 @@ public record GasMix(int oxygen, int helium) {
 
     public String summary() {
         return String.format(
-            Locale.ROOT,
-            "O2 %d%% / N2 %d%% / He %d%%",
-            oxygen,
-            nitrogen(),
-            helium
-        );
+                Locale.ROOT, "O2 %d%% / N2 %d%% / He %d%%", oxygen, nitrogen(), helium);
     }
 }

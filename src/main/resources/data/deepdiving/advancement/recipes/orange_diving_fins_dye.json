@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gear": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#deepdiving:diving_fins"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_gear"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:orange_diving_fins_dye"
+    ]
+  }
+}

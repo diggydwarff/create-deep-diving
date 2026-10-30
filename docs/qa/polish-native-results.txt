@@ -1,0 +1,60 @@
+PASS Ponder gas_compressor: 505 ticks, 4 keyframes, all instructions complete
+PASS Ponder gas_separator: 509 ticks, 4 keyframes, all instructions complete
+PASS Ponder gas_blending_station: 795 ticks, 6 keyframes, all instructions complete
+PASS Ponder gas_storage: 496 ticks, 4 keyframes, all instructions complete
+PASS Ponder advanced_diving_cylinder: 671 ticks, 5 keyframes, all instructions complete
+PASS Ponder map_bundle: 679 ticks, 5 keyframes, all instructions complete
+PASS Ponder dive_log_book: 528 ticks, 4 keyframes, all instructions complete
+PASS native capture polish-normal-machine-compressor.png at 640x450
+PASS native capture polish-normal-machine-separator.png at 640x450
+PASS native capture polish-normal-machine-blender.png at 640x450
+PASS native capture polish-normal-machine-storage.png at 640x450
+PASS native capture polish-normal-machine-blender-hover.png at 640x450
+PASS native capture polish-normal-journal-history.png at 640x450
+PASS native capture polish-normal-journal-warnings.png at 640x450
+PASS native capture polish-normal-journal-empty.png at 640x450
+PASS native capture polish-normal-computer-live.png at 640x450
+PASS native capture polish-normal-computer-help-0.png at 640x450
+PASS native capture polish-normal-computer-help-1.png at 640x450
+PASS native capture polish-normal-computer-help-2.png at 640x450
+PASS native capture polish-normal-computer-help-3.png at 640x450
+PASS native capture polish-normal-computer-help-4.png at 640x450
+PASS native capture polish-normal-computer-help-5.png at 640x450
+PASS native capture polish-normal-bundle-full.png at 640x450
+PASS native capture polish-normal-bundle-name.png at 640x450
+PASS native capture polish-normal-bundle-empty.png at 640x450
+PASS native capture polish-normal-sign-editor.png at 640x450
+PASS native capture polish-normal-ponder-gas_compressor.png at 640x450
+PASS native capture polish-normal-ponder-gas_separator.png at 640x450
+PASS native capture polish-normal-ponder-gas_blending_station.png at 640x450
+PASS native capture polish-normal-ponder-gas_storage.png at 640x450
+PASS native capture polish-normal-ponder-advanced_diving_cylinder.png at 640x450
+PASS native capture polish-normal-ponder-map_bundle.png at 640x450
+PASS native capture polish-normal-ponder-dive_log_book.png at 640x450
+PASS native capture polish-small-machine-compressor.png at 320x240
+PASS native capture polish-small-machine-separator.png at 320x240
+PASS native capture polish-small-machine-blender.png at 320x240
+PASS native capture polish-small-machine-storage.png at 320x240
+PASS native capture polish-small-machine-blender-hover.png at 320x240
+PASS native capture polish-small-journal-history.png at 320x240
+PASS native capture polish-small-journal-warnings.png at 320x240
+PASS native capture polish-small-journal-empty.png at 320x240
+PASS native capture polish-small-computer-live.png at 320x240
+PASS native capture polish-small-computer-help-0.png at 320x240
+PASS native capture polish-small-computer-help-1.png at 320x240
+PASS native capture polish-small-computer-help-2.png at 320x240
+PASS native capture polish-small-computer-help-3.png at 320x240
+PASS native capture polish-small-computer-help-4.png at 320x240
+PASS native capture polish-small-computer-help-5.png at 320x240
+PASS native capture polish-small-bundle-full.png at 320x240
+PASS native capture polish-small-bundle-name.png at 320x240
+PASS native capture polish-small-bundle-empty.png at 320x240
+PASS native capture polish-small-sign-editor.png at 320x240
+PASS native capture polish-small-ponder-gas_compressor.png at 320x240
+PASS native capture polish-small-ponder-gas_separator.png at 320x240
+PASS native capture polish-small-ponder-gas_blending_station.png at 320x240
+PASS native capture polish-small-ponder-gas_storage.png at 320x240
+PASS native capture polish-small-ponder-advanced_diving_cylinder.png at 320x240
+PASS native capture polish-small-ponder-map_bundle.png at 320x240
+PASS native capture polish-small-ponder-dive_log_book.png at 320x240
+PASS all screens, six recovery pages and seven Ponders rendered at normal and minimum GUI sizes

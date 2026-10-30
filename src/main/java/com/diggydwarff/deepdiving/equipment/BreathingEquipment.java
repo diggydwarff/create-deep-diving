@@ -46,32 +46,27 @@ public final class BreathingEquipment {
             return null;
         }
 
-        boolean regulator = carries(player, DeepDiving.REGULATOR.get());
-
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
 
-        if (regulator
-            && chest.getItem() instanceof CylinderItem
+        if (chest.getItem() instanceof CylinderItem
             && CylinderItem.supply(chest).remaining() > 0) {
             return cylinder(chest, false);
         }
 
-        if (regulator) {
-            for (ItemStack stack : player.getInventory().items) {
-                if (stack.getItem() instanceof CylinderItem
-                    && CylinderItem.supply(stack).backupEnabled()
-                    && CylinderItem.supply(stack).remaining() > 0) {
-                    return cylinder(stack, true);
-                }
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.getItem() instanceof CylinderItem
+                && CylinderItem.supply(stack).backupEnabled()
+                && CylinderItem.supply(stack).remaining() > 0) {
+                return cylinder(stack, true);
             }
+        }
 
-            ItemStack offhand = player.getOffhandItem();
+        ItemStack offhand = player.getOffhandItem();
 
-            if (offhand.getItem() instanceof CylinderItem
-                && CylinderItem.supply(offhand).backupEnabled()
-                && CylinderItem.supply(offhand).remaining() > 0) {
-                return cylinder(offhand, true);
-            }
+        if (offhand.getItem() instanceof CylinderItem
+            && CylinderItem.supply(offhand).backupEnabled()
+            && CylinderItem.supply(offhand).remaining() > 0) {
+            return cylinder(offhand, true);
         }
 
         var tanks = BacktankUtil.getAllWithAir(player);
@@ -152,6 +147,7 @@ public final class BreathingEquipment {
     }
 
     public static void consume(Player player, Supply supply, double amount) {
+        double before = supply.create ? BacktankUtil.getAir(supply.stack) : CylinderItem.supply(supply.stack).remaining();
         if (supply.create) {
             // Preserve fractional pressure drain between seconds instead of rounding every breath
             // up.
@@ -168,6 +164,10 @@ public final class BreathingEquipment {
             }
         } else {
             supply.stack.set(DeepDiving.SUPPLY.get(), CylinderItem.supply(supply.stack).consume(amount));
+        }
+        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            double after = supply.create ? BacktankUtil.getAir(supply.stack) : CylinderItem.supply(supply.stack).remaining();
+            com.diggydwarff.deepdiving.logbook.DiveLogService.gasUsed(serverPlayer, Math.max(0, before - after), supply.create, supply.mix);
         }
     }
 

@@ -11,15 +11,9 @@ import net.minecraft.network.chat.Component;
 /** Create's real button chrome, sized to a short label. */
 final class CreateButton extends IconButton {
     private String label;
+    private boolean chosen;
 
-    CreateButton(
-        int x,
-        int y,
-        int width,
-        String label,
-        String tooltip,
-        Runnable callback
-    ) {
+    CreateButton(int x, int y, int width, String label, String tooltip, Runnable callback) {
         super(x, y, width, 18, AllIcons.I_CONFIRM);
         this.label = label;
         setMessage(Component.literal(label));
@@ -32,33 +26,40 @@ final class CreateButton extends IconButton {
         setMessage(Component.literal(text));
     }
 
+    void setChosen(boolean value) {
+        chosen = value;
+    }
+
     @Override
-    public void doRender(
-        GuiGraphics g,
-        int mx,
-        int my,
-        float partial
-    ) {
-        AllGuiTextures bg = !active
-                ? AllGuiTextures.BUTTON_DISABLED
-                : isHoveredOrFocused()
-                        ? AllGuiTextures.BUTTON_HOVER
-                        : AllGuiTextures.BUTTON;
+    public void doRender(GuiGraphics g, int mx, int my, float partial) {
+        AllGuiTextures bg =
+                !active
+                        ? AllGuiTextures.BUTTON_DISABLED
+                        : isHoveredOrFocused()
+                                ? AllGuiTextures.BUTTON_HOVER
+                                : AllGuiTextures.BUTTON;
 
         drawBg(g, bg);
 
         var font = Minecraft.getInstance().font;
 
-        String visible = font.plainSubstrByWidth(label, getWidth() - 6);
+        String visible = ScreenText.fit(font, label, getWidth() - 6);
 
         g.drawString(
-            font,
-            visible,
-            getX() + (getWidth() - font.width(visible)) / 2,
-            getY() + 5,
-            active ? 0x181B1D : 0x525659,
-            false
-        );
+                font,
+                visible,
+                getX() + (getWidth() - font.width(visible)) / 2,
+                getY() + 5,
+                active ? 0x181B1D : 0x525659,
+                false);
+        if (chosen) {
+            g.fill(
+                    getX() + 3,
+                    getY() + 15,
+                    getX() + getWidth() - 3,
+                    getY() + 17,
+                    active ? 0xFF377C73 : 0xFF626D69);
+        }
     }
 
     @Override
@@ -70,13 +71,12 @@ final class CreateButton extends IconButton {
         }
 
         g.blit(
-            t.location,
-            getX() + getWidth() - 2,
-            getY(),
-            t.getStartX() + 16,
-            t.getStartY(),
-            2,
-            18
-        );
+                t.location,
+                getX() + getWidth() - 2,
+                getY(),
+                t.getStartX() + 16,
+                t.getStartY(),
+                2,
+                18);
     }
 }

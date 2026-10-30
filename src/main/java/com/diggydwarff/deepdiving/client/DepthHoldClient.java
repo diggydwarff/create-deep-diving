@@ -22,21 +22,19 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 /** Predict the server-approved buoyancy correction locally for smooth multiplayer movement. */
-@EventBusSubscriber(
-    modid = DeepDiving.MOD_ID,
-    value = Dist.CLIENT
-)
+@EventBusSubscriber(modid = DeepDiving.MOD_ID, value = Dist.CLIENT)
 public final class DepthHoldClient {
-    private static final KeyMapping HOLD = new KeyMapping(
-        "key.deepdiving.depth_hold",
-        InputConstants.Type.KEYSYM,
-        GLFW.GLFW_KEY_V,
-        "key.categories.deepdiving"
-    );
+    private static final KeyMapping HOLD =
+            new KeyMapping(
+                    "key.deepdiving.depth_hold",
+                    InputConstants.Type.KEYSYM,
+                    GLFW.GLFW_KEY_V,
+                    "key.categories.deepdiving");
 
     private static boolean releasePending;
 
     private static ClientLevel previousLevel;
+    private static net.minecraft.client.player.LocalPlayer previousPlayer;
 
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(HOLD);
@@ -44,23 +42,24 @@ public final class DepthHoldClient {
 
     public static boolean isHolding() {
         return ClientRegistration.snapshot != null
-            && ClientRegistration.snapshot.depthHold()
-            && !releasePending;
+                && ClientRegistration.snapshot.depthHold()
+                && !releasePending;
     }
 
     static String help() {
         return "Press "
                 + HOLD.getTranslatedKeyMessage().getString()
-                + " to hold your current depth with diving gear and a computer."
-                + " Press again, swim up or sneak to release. Horizontal swimming remains available.";
+                + " to hold your current depth with diving gear and a computer. Press again, swim"
+                + " up or sneak to release. Horizontal swimming remains available.";
     }
 
     @SubscribeEvent
     public static void tick(ClientTickEvent.Post event) {
         var mc = Minecraft.getInstance();
 
-        if (mc.level != previousLevel) {
+        if (mc.level != previousLevel || mc.player != previousPlayer) {
             previousLevel = mc.level;
+            previousPlayer = mc.player;
             releasePending = false;
             ClientRegistration.snapshot = null;
         }
@@ -95,16 +94,17 @@ public final class DepthHoldClient {
             return;
         }
 
-        boolean manualVertical = mc.screen == null && (mc.options.keyJump.isDown() || mc.options.keyShift.isDown());
+        boolean manualVertical =
+                mc.screen == null && (mc.options.keyJump.isDown() || mc.options.keyShift.isDown());
 
         if (manualVertical
-            || !mc.player.isAlive()
-            || !DiverService.active(mc.player)
-            || mc.player.getAbilities().flying
-            || mc.player.isPassenger()
-            || mc.player.isFallFlying()
-            || !mc.player.isEyeInFluid(FluidTags.WATER)
-            || Math.abs(mc.player.getDeltaMovement().y) > .3) {
+                || !mc.player.isAlive()
+                || !DiverService.active(mc.player)
+                || mc.player.getAbilities().flying
+                || mc.player.isPassenger()
+                || mc.player.isFallFlying()
+                || !mc.player.isEyeInFluid(FluidTags.WATER)
+                || Math.abs(mc.player.getDeltaMovement().y) > .3) {
             releasePending = true;
             PacketDistributor.sendToServer(new DivingPackets.DepthHoldRequest(false));
             return;
@@ -114,23 +114,21 @@ public final class DepthHoldClient {
 
         motion = BuoyancyClient.horizontal(motion, 0);
         mc.player.setDeltaMovement(
-            motion.x,
-            DepthHoldMotion.vertical(
-                mc.player.getY(),
-                BuoyancyMotion.bobTarget(
-                    state.holdTargetY(),
-                    mc.level.getGameTime(),
-                    state.heldDepth() - state.ceiling()
-                ),
-                state.safeAscent()
-            ),
-            motion.z
-        );
+                motion.x,
+                DepthHoldMotion.vertical(
+                        mc.player.getY(),
+                        BuoyancyMotion.bobTarget(
+                                state.holdTargetY(),
+                                mc.level.getGameTime(),
+                                state.heldDepth() - state.ceiling()),
+                        state.safeAscent()),
+                motion.z);
     }
 
     @SubscribeEvent
     public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
         previousLevel = null;
+        previousPlayer = null;
         releasePending = false;
         ClientRegistration.snapshot = null;
     }

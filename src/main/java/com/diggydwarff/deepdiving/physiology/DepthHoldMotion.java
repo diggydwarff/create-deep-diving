@@ -4,9 +4,9 @@ package com.diggydwarff.deepdiving.physiology;
 public final class DepthHoldMotion {
     public static double vertical(double currentY, double targetY, double ascentLimit) {
         if (!Double.isFinite(currentY)
-            || !Double.isFinite(targetY)
-            || !Double.isFinite(ascentLimit)
-            || ascentLimit <= 0) {
+                || !Double.isFinite(targetY)
+                || !Double.isFinite(ascentLimit)
+                || ascentLimit <= 0) {
             return 0;
         }
 
@@ -16,7 +16,7 @@ public final class DepthHoldMotion {
             return 0;
         }
 
-        return Math.clamp(error * .15, -.05, Math.min(.05, ascentLimit * .8 / 20));
+        return Math.clamp(error * .10, -.025, Math.min(.025, ascentLimit * .8 / 20));
     }
 
     private DepthHoldMotion() {}

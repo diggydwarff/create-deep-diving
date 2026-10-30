@@ -1,0 +1,26 @@
+Create: Deep Diving — RC1 refinement validation
+JAR: create-deep-diving-1.21.1-1.0.0-rc.1.jar
+SHA-256: 694a1668cf63ea61131d25d42eb956d655c6b0802d54e56629970a091ecd3dad
+
+PASS forgiving ascent: normal swimming, repeated up/down adjustments, grace, minimum rise, sustained warnings, recovery, old configs and history resets
+PASS 50500 gas mixture conservation transactions
+PASS 5050 mixtures: repeated low-RPM ratio conservation and partial-buffer boundaries
+PASS retained decompression loading and recovery
+PASS chart contours, soundings and glyph bounds
+PASS single and dual-map traversal coverage within a shared tick budget
+PASS partial-second dive accounting, repeat-sample safety, dry time and session caps
+PASS lamp profiles and invalid ID fallback
+BUILD SUCCESSFUL in 13s
+
+PASS every production class matches validated main output; compiled QA classes excluded
+PASS new supplied mask and six retained supplied icons preserved pixel-for-pixel; archived original log retained
+PASS rc.1 metadata, protocol 14, custom marker/metal sign/exhaust assets and only pinned Illumination API bundled
+PASS all seven Ponder structures retained
+PASS 631 JSON resources, model/texture references, 48 colored wearables, recipes, translations and worn texture sizes
+PASS ten distinct 16px pictograms and a blank panel; retired IDs loadable, crisp alpha, selective glow, all mount variants, core-only recipes and >=6:1 contrast
+PASS supplied mask pixel identity; 16 matching dye silhouettes and fixed glass/copper/rubber; consistent worn materials; original crisp metal sign, small marker and unique dive log
+PASS native integrated-server bundle updates and foreground marker pixels on both pages at GUI sizes 640x450 and 320x240
+PASS native sustained bubble ascent, bounded lifetime, surface and dry-air removal
+PASS 52 native screen/Ponder captures and seven complete Ponder timelines
+PASS dedicated-server regression suite including site persistence/migration/locking, cartography and ordinary orange banners
+PASS git diff --check

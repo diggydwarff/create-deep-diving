@@ -1,0 +1,31 @@
+Create: Deep Diving — direct supply and stronger opening exhaust
+JAR: create-deep-diving-1.21.1-1.0.0-rc.1.jar
+SHA-256: c5fc0b9b897ac7a451f2a8cd8dec91c424cb51f681f9f5a6b1b04de0f91a148f
+
+PASS forgiving ascent: normal swimming, repeated up/down adjustments, grace, minimum rise, sustained warnings, recovery, old configs and history resets
+PASS sparse varied exhale bursts/trails, restrained idle bob and correction, ascent limits and rejection of stale multi-block rest targets
+PASS 50500 gas mixture conservation transactions
+PASS 5050 mixtures: repeated low-RPM ratio conservation and partial-buffer boundaries
+PASS retained decompression loading and recovery
+PASS chart contours, soundings and glyph bounds
+PASS single and dual-map traversal coverage within a shared tick budget
+PASS partial-second dive accounting, repeat-sample safety, dry time and session caps
+PASS lamp profiles and invalid ID fallback
+BUILD SUCCESSFUL in 14s
+
+PASS every production class matches validated main output; all compiled QA classes excluded
+PASS supplied mask and retained supplied item sprites preserved pixel-for-pixel
+PASS retired regulator crafting recipe and unlock explicitly disabled; only legacy recycling is active; all three cylinder recipes use replacement components
+PASS RC1 metadata and protocol 14 retained; only pinned Illumination API bundled
+PASS 633 JSON resources, model/texture references, 48 colored wearables, recipes, translations and worn texture sizes
+PASS ten distinct 16px pictograms and a blank panel; retired IDs loadable, crisp alpha, selective glow, all mount variants, core-only recipes and >=6:1 contrast
+PASS supplied mask pixel identity; 16 matching dye silhouettes and fixed glass/copper/rubber; consistent worn materials; original crisp metal sign, small marker and unique dive log
+PASS real server: direct cylinder and backup breathing, single-supply consumption, Create fallback/config, legacy stack load/recycling and all three replacement recipes
+PASS connected integrated-server player: all four progression advancements earned without a regulator
+PASS native opening mouth puff: five to seven bubbles, outward movement and sparse single-bubble trail; creative regulator hidden
+PASS native playback: all seven Ponders complete; retired regulator has no tutorial
+PASS native particle cohorts: varied rise, lifetime and surface opacity fades, staggered dissolution and bounded removal
+PASS native client: stale target three blocks below, pending hover data, manual release and fresh-height capture
+PASS real server fin control: stale depth/height data, correction bounds, manual input, external impulses and deeper decompression stops
+PASS prior bundle-marker native checks at both GUI sizes retained in the same run
+PASS git diff --check

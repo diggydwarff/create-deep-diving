@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "deepdiving:diving_regulator"
+    }
+  ],
+  "result": {
+    "id": "create:precision_mechanism",
+    "count": 1
+  }
+}

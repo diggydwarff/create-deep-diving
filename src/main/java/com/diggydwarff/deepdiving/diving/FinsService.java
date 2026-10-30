@@ -8,7 +8,6 @@ import com.diggydwarff.deepdiving.physiology.*;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
@@ -26,19 +25,20 @@ public final class FinsService {
     private static final ResourceLocation WALK = DeepDiving.id("fins_walk");
 
     public static boolean worn(Player player) {
-        return player.getItemBySlot(EquipmentSlot.FEET).is(DeepDiving.FINS.get());
+        return player.getItemBySlot(EquipmentSlot.FEET).getItem()
+                instanceof com.diggydwarff.deepdiving.equipment.DivingFinsItem;
     }
 
     /** Fins remain usable without a helmet, tank, or active diving simulation. */
     public static boolean eligible(Player player) {
         return worn(player)
-            && !player.isSpectator()
-            && player.isAlive()
-            && !player.getAbilities().flying
-            && !player.isPassenger()
-            && !player.isFallFlying()
-            && player.isInWater()
-            && !DeepSeasCompatibility.inDryCompartment(player);
+                && !player.isSpectator()
+                && player.isAlive()
+                && !player.getAbilities().flying
+                && !player.isPassenger()
+                && !player.isFallFlying()
+                && player.isInWater()
+                && !DeepSeasCompatibility.inDryCompartment(player);
     }
 
     public static Boolean swimmingOverride(Player player) {
@@ -59,11 +59,7 @@ public final class FinsService {
 
     /** Client input describes intent; eligibility and the held depth remain server-owned. */
     public static void control(
-        ServerPlayer player,
-        boolean swimming,
-        boolean vertical,
-        boolean moving
-    ) {
+            ServerPlayer player, boolean swimming, boolean vertical, boolean moving) {
         DiverState state = DiverService.state(player);
 
         if (!eligible(player)) {
@@ -93,12 +89,11 @@ public final class FinsService {
     }
 
     private static void modifier(
-        Player player,
-        Holder<Attribute> attribute,
-        ResourceLocation id,
-        double amount,
-        boolean active
-    ) {
+            Player player,
+            Holder<Attribute> attribute,
+            ResourceLocation id,
+            double amount,
+            boolean active) {
         var attributeInstance = player.getAttribute(attribute);
 
         if (attributeInstance == null) {
@@ -107,8 +102,8 @@ public final class FinsService {
 
         if (active && !attributeInstance.hasModifier(id)) {
             attributeInstance.addTransientModifier(
-                new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
-            );
+                    new AttributeModifier(
+                            id, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         } else if (!active) {
             attributeInstance.removeModifier(id);
         }
@@ -120,19 +115,18 @@ public final class FinsService {
         // Equipment bonuses apply during travel as well as during stationary buoyancy.
         modifier(player, NeoForgeMod.SWIM_SPEED, SWIM, .08, worn(player) && player.isInWater());
         modifier(
-            player,
-            Attributes.MOVEMENT_SPEED,
-            WALK,
-            -.25,
-            worn(player) && player.onGround() && !player.isSwimming()
-        );
+                player,
+                Attributes.MOVEMENT_SPEED,
+                WALK,
+                -.25,
+                worn(player) && player.onGround() && !player.isSwimming());
 
         if (!eligible(player)
-            || diving && state.blackedOut
-            || state.finDimension != null && state.finDimension != player.level().dimension()
-            || state.finPreviousPosition != null
-                && player.position().distanceToSqr(state.finPreviousPosition) > 64
-            || Math.abs(player.getDeltaMovement().y) > .3) {
+                || diving && state.blackedOut
+                || state.finDimension != null && state.finDimension != player.level().dimension()
+                || state.finPreviousPosition != null
+                        && player.position().distanceToSqr(state.finPreviousPosition) > 64
+                || Math.abs(player.getDeltaMovement().y) > .3) {
             clear(state);
             return;
         }
@@ -142,11 +136,12 @@ public final class FinsService {
         }
 
         // Manual movement and V hold take precedence over the fins' passive rest position.
-        boolean floating = state.finPoseControlled
-            && state.finSwimming
-            && !state.finMoving
-            && !state.finVertical
-            && !(diving && state.depthHold);
+        boolean floating =
+                state.finPoseControlled
+                        && state.finSwimming
+                        && !state.finMoving
+                        && !state.finVertical
+                        && !(diving && state.depthHold);
 
         if (!floating) {
             state.finsFloating = false;
@@ -165,36 +160,35 @@ public final class FinsService {
         state.finDimension = player.level().dimension();
         state.finPreviousPosition = player.position();
 
-        double stop = diving && DivingConfig.PHYSIOLOGY.get()
-                ? DecompressionStops.depth(
-                    state.tissues,
-                    DivingConfig.pressureProfile(player.level().dimension().location())
-                )
-                : 0;
+        double stop =
+                diving && DivingConfig.PHYSIOLOGY.get()
+                        ? DecompressionStops.depth(
+                                state.tissues,
+                                DivingConfig.pressureProfile(player.level().dimension().location()))
+                        : 0;
 
-        // A rising decompression ceiling can push the target deeper, never through a stop.
-        double oldDepth = state.finDepth;
-
-        state.finDepth = Math.max(state.finDepth, stop);
-
-        if (player.isEyeInFluid(FluidTags.WATER)) {
-            state.finTargetY = player.getY() + depth - state.finDepth;
-        } else {
-            // Keep the captured rest height while the diver's face is above the surface.
-            state.finTargetY -= state.finDepth - oldDepth;
+        // Rest at a physical height, so another water column or a stale depth sample cannot
+        // turn passive assistance into an unsolicited multi-block dive.
+        state.finTargetY = BuoyancyMotion.restTarget(player.getY(), state.finTargetY);
+        if (stop > depth + .5) {
+            state.finsFloating = false;
+            return;
         }
+        if (stop > 0) state.finTargetY = Math.min(state.finTargetY, player.getY() + depth - stop);
+        state.finDepth = Math.max(0, depth + player.getY() - state.finTargetY);
 
         var motion = player.getDeltaMovement();
 
         player.setDeltaMovement(
-            motion.x,
-            DepthHoldMotion.vertical(
-                player.getY(),
-                BuoyancyMotion.bobTarget(state.finTargetY, player.level().getGameTime(), state.finDepth - stop),
-                DivingConfig.SAFE_ASCENT.get()
-            ),
-            motion.z
-        );
+                motion.x,
+                DepthHoldMotion.vertical(
+                        player.getY(),
+                        BuoyancyMotion.bobTarget(
+                                state.finTargetY,
+                                player.level().getGameTime(),
+                                state.finDepth - stop),
+                        DivingConfig.SAFE_ASCENT.get()),
+                motion.z);
     }
 
     @SubscribeEvent

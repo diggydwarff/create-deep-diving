@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:oxygen",
+    {
+      "id": "#c:oxygen",
+      "required": false
+    }
+  ]
+}

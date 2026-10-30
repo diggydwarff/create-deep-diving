@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "deepdiving:item/gray_snorkeling_mask"
+  }
+}

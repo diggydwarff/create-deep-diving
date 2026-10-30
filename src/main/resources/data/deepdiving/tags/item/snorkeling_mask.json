@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:snorkeling_mask",
+    "deepdiving:white_snorkeling_mask",
+    "deepdiving:orange_snorkeling_mask",
+    "deepdiving:magenta_snorkeling_mask",
+    "deepdiving:light_blue_snorkeling_mask",
+    "deepdiving:yellow_snorkeling_mask",
+    "deepdiving:lime_snorkeling_mask",
+    "deepdiving:pink_snorkeling_mask",
+    "deepdiving:gray_snorkeling_mask",
+    "deepdiving:light_gray_snorkeling_mask",
+    "deepdiving:cyan_snorkeling_mask",
+    "deepdiving:purple_snorkeling_mask",
+    "deepdiving:blue_snorkeling_mask",
+    "deepdiving:brown_snorkeling_mask",
+    "deepdiving:green_snorkeling_mask",
+    "deepdiving:red_snorkeling_mask",
+    "deepdiving:black_snorkeling_mask"
+  ]
+}

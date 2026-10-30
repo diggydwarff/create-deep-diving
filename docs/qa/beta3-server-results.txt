@@ -1,0 +1,14 @@
+PASS 48 real crafting recipes assemble the requested dye variants
+PASS all16 gear variants retain equipment behavior
+PASS tagged oxygen normalization, Deep Seas tag membership and alias round-trip accounting
+PASS fluid port transaction conservation and invalid input rejection
+PASS startup and fluid operation without Mekanism or Deep Seas
+PASS dual-wielded chart progress and duplicate/tick budget protection
+PASS bathymetry, no forced chunk loading and persistent map identity
+PASS map bundle: real transfers, paging, persistence, 16-map limit and hand locks
+PASS 24 dive sign designs, geometry, stonecutter transactions, component persistence, edit validation and map labels
+PASS site signs, marker persistence, frame placement and real cartography operations
+PASS stable dive numbering, dropped-stack closure and interruption accounting
+PASS dive log recording, gas usage, bounded history and persistence
+PASS real submerged-player ascent: ordinary swimming, short adjustments, sustained warning bit, slowing recovery, teleport/surface resets and retained decompression
+PASS ascent readout respects server grace and prioritizes violated decompression stops

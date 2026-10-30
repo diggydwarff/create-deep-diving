@@ -1,0 +1,22 @@
+release-qa-clean-server.log
+PASS release audit: 3000 real bundle clicks conserve maps and persisted contents
+PASS release audit: bound chest armour cannot be replaced by a cylinder
+PASS release audit: blender fills from a partial final input buffer
+PASS release audit: right-click knife harvesting obeys block-break cancellation
+PASS release audit: small mixed batches retain ratios across machine save/load
+PASS release audit: death resets exposure while non-death cloning preserves it
+PASS release audit: clearing diving symptoms preserves independent vanilla effects
+PASS release audit: adversarial inventory, binding, partial blending and protected harvesting
+
+release-qa-mekanism-final.log
+PASS release audit: 3000 real bundle clicks conserve maps and persisted contents
+PASS release audit: bound chest armour cannot be replaced by a cylinder
+PASS release audit: blender fills from a partial final input buffer
+PASS release audit: right-click knife harvesting obeys block-break cancellation
+PASS release audit: small mixed batches retain ratios across machine save/load
+PASS release audit: death resets exposure while non-death cloning preserves it
+PASS release audit: clearing diving symptoms preserves independent vanilla effects
+PASS release audit: adversarial inventory, binding, partial blending and protected harvesting
+
+release-qa-client-vanilla.log
+PASS same-dimension LocalPlayer replacement clears stale depth hold and computer warnings

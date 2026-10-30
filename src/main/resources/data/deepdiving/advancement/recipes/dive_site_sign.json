@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_sign": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:oak_sign"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_sign"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:dive_site_sign"
+    ]
+  }
+}

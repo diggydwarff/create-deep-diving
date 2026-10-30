@@ -1,0 +1,7 @@
+{
+  "parent": "deepdiving:block/dive_sign/template_post_3",
+  "textures": {
+    "front": "deepdiving:block/dive_sign/maximum_depth",
+    "back": "deepdiving:block/dive_sign/back"
+  }
+}

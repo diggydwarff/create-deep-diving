@@ -1,0 +1,24 @@
+Create: Deep Diving — nautical config UI
+JAR: create-deep-diving-1.21.1-1.0.0-beta.3.jar
+SHA-256: 138f06d60aa702722ddf44c021e44b134c92fc96b614939ce9544ff7757a6435
+
+PASS forgiving ascent: normal swimming, repeated up/down adjustments, grace, minimum rise, sustained warnings, recovery, old configs and history resets
+PASS 50500 gas mixture conservation transactions
+PASS 5050 mixtures: repeated low-RPM ratio conservation and partial-buffer boundaries
+PASS retained decompression loading and recovery
+PASS chart contours, soundings and glyph bounds
+PASS single and dual-map traversal coverage within a shared tick budget
+PASS partial-second dive accounting, repeat-sample safety, dry time and session caps
+PASS lamp profiles and invalid ID fallback
+BUILD SUCCESSFUL in 11s
+
+PASS all production classes match validated main output; custom config UI packaged; every compiled QA class excluded
+PASS all seven revised Ponder structures and tutorial code retained
+PASS only checksum-verified Illumination API 1.0 bundled
+PASS all seven supplied 16x16 icons preserved pixel-for-pixel
+PASS config specs, keys, defaults and schemas unchanged; version remains beta.3 and protocol remains 13
+PASS 630 JSON resources, model/texture references, 48 colored wearables, recipes, translations and worn texture sizes
+PASS ten distinct 16px pictograms and a blank panel; retired IDs loadable, crisp alpha, selective glow, all mount variants, core-only recipes and >=6:1 contrast
+PASS git diff --check
+PASS native config probe: 29 workflow steps and 15 screenshots at GUI sizes 640x450 and 320x240
+PASS dedicated-server regression suite

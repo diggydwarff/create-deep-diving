@@ -130,7 +130,7 @@ final class FinsLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abst
         float pitch
     ) {
         if (player.isInvisible()
-            || !player.getItemBySlot(EquipmentSlot.FEET).is(DeepDiving.FINS.get())) {
+            || !(player.getItemBySlot(EquipmentSlot.FEET).getItem() instanceof com.diggydwarff.deepdiving.equipment.DivingFinsItem item)) {
             return;
         }
 
@@ -139,7 +139,7 @@ final class FinsLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abst
             pose.pushPose();
             leg.translateAndRotate(pose);
             render(pocket, RUBBER, pose, buffers, light);
-            render(blade, TEAL, pose, buffers, light);
+            render(blade, DeepDiving.id("textures/entity/fins/" + item.color.getName() + ".png"), pose, buffers, light);
             render(ribs, RIBS, pose, buffers, light);
             render(straps, STRAPS, pose, buffers, light);
             render(buckles, BRASS, pose, buffers, light);

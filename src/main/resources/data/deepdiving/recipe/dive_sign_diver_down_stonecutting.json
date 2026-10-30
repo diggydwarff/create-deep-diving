@@ -1,0 +1,10 @@
+{
+  "type": "deepdiving:dive_sign_cutting",
+  "ingredient": {
+    "tag": "deepdiving:dive_sign_panels"
+  },
+  "result": {
+    "id": "deepdiving:dive_sign_diver_down",
+    "count": 1
+  }
+}

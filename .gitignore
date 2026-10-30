@@ -35,8 +35,13 @@ crash-reports/
 # OS junk
 .DS_Store
 Thumbs.db
+qa-libs/
 
 # Temporary files
 *.tmp
 *.bak
 *.swp
+
+# Python asset-tool caches
+__pycache__/
+*.py[cod]

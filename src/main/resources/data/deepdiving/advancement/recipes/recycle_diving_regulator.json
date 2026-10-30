@@ -1,0 +1,26 @@
+{
+  "criteria": {
+    "has_old_regulator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "deepdiving:diving_regulator"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_old_regulator"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "deepdiving:recycle_diving_regulator"
+    ]
+  }
+}

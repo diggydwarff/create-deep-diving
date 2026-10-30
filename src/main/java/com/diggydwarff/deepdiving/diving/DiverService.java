@@ -89,10 +89,6 @@ public final class DiverService {
             return true;
         }
 
-        if (!BreathingEquipment.carries(player, DeepDiving.REGULATOR.get())) {
-            return false;
-        }
-
         var selected = BreathingEquipment.select(player);
 
         return selected == null || !selected.create();
@@ -167,6 +163,7 @@ public final class DiverService {
             state.warnings = 0;
             state.underwater = false;
             state.initialized = false;
+            state.ascentMonitor.reset();
             state.gasSeconds = -1;
             state.ceiling = 0;
             state.stopSeconds = 0;
@@ -248,6 +245,8 @@ public final class DiverService {
             && state.previousDimension == player.level().dimension()
             && profile.equals(state.previousProfile);
 
+        boolean wasUnderwater = state.underwater;
+
         state.underwater = player.isEyeInFluid(FluidTags.WATER)
             && !DeepSeasCompatibility.inDryCompartment(player);
         state.depth = state.underwater ? DepthSampler.depth(player) : 0;
@@ -257,6 +256,14 @@ public final class DiverService {
         state.ascentRate = historyValid && Math.abs(player.getY() - state.previousY) < 16
                 ? player.getY() - state.previousY
                 : 0;
+        state.ascentMonitor.update(
+            state.ascentRate,
+            1,
+            historyValid && wasUnderwater && state.underwater,
+            DivingConfig.SAFE_ASCENT.get(),
+            DivingConfig.ASCENT_WARNING_GRACE.get(),
+            DivingConfig.ASCENT_WARNING_RISE.get()
+        );
         state.previousY = player.getY();
         state.initialized = true;
         state.previousDimension = player.level().dimension();
@@ -458,8 +465,7 @@ public final class DiverService {
             state.warnings |= NARCOSIS;
         }
 
-        if (state.ascentRate > DivingConfig.SAFE_ASCENT.get()
-            && (state.underwater || state.ceiling > 0)) {
+        if (state.ascentMonitor.warning()) {
             state.warnings |= ASCENT;
         }
 

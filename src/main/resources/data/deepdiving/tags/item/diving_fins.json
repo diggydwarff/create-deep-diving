@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:diving_fins",
+    "deepdiving:white_diving_fins",
+    "deepdiving:orange_diving_fins",
+    "deepdiving:magenta_diving_fins",
+    "deepdiving:light_blue_diving_fins",
+    "deepdiving:yellow_diving_fins",
+    "deepdiving:lime_diving_fins",
+    "deepdiving:pink_diving_fins",
+    "deepdiving:gray_diving_fins",
+    "deepdiving:light_gray_diving_fins",
+    "deepdiving:cyan_diving_fins",
+    "deepdiving:purple_diving_fins",
+    "deepdiving:blue_diving_fins",
+    "deepdiving:brown_diving_fins",
+    "deepdiving:green_diving_fins",
+    "deepdiving:red_diving_fins",
+    "deepdiving:black_diving_fins"
+  ]
+}

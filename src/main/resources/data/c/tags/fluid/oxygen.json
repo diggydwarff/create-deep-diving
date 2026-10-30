@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "deepdiving:oxygen",
+    {
+      "id": "create_submarine:oxygen",
+      "required": false
+    },
+    {
+      "id": "create_submarine:oxygen_flowing",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+# Merge these values into the root of the world's serverconfig/deepdiving-server.toml.
+# This is a settings excerpt, not a complete replacement configuration.
+# Existing worlds retain an older/custom maximum until you change it explicitly.
+maximumAscentBlocksPerSecond = 2.5
+ascentWarningGraceSeconds = 3.0
+ascentWarningMinimumRise = 4.0

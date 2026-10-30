@@ -1,0 +1,7 @@
+{
+  "parent": "deepdiving:block/dive_sign/template_post_1",
+  "textures": {
+    "front": "deepdiving:block/dive_sign/overhead_environment",
+    "back": "deepdiving:block/dive_sign/back"
+  }
+}

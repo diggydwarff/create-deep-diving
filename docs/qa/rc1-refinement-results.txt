@@ -1,0 +1,7 @@
+PASS actual server packet and visible custom site marker: rc1-bundle-normal-page1.png
+PASS actual server packet and visible custom site marker: rc1-bundle-normal-page2.png
+PASS actual server packet and visible custom site marker: rc1-bundle-small-page2.png
+PASS actual server packet and visible custom site marker: rc1-bundle-small-page1.png
+PASS metal site signs rendered and blue fins creative-tab icon
+PASS real client particles: sustained upward travel, time cap, surface and dry-air removal
+PASS integrated bundle paging, marker network identity and foreground pixels at both sizes, metal signs, item models, blue tab icon and persistent rising bubbles

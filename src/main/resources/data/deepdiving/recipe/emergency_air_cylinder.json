@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    " R ",
+    " P ",
     "ICI",
     " I "
   ],
   "key": {
-    "R": {
-      "item": "deepdiving:diving_regulator"
+    "P": {
+      "item": "create:fluid_pipe"
     },
     "I": {
       "item": "minecraft:iron_nugget"

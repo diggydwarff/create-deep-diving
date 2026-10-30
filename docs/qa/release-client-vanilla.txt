@@ -1,0 +1,6 @@
+PASS native capture beta3-trunks.png
+PASS native capture beta3-signs.png
+PASS native capture beta3-bundle-page1.png
+PASS native capture beta3-bundle-page2.png
+PASS native capture beta3-bundle-empty.png
+PASS client menu opening, map packets, next-page synchronization and supplied item models

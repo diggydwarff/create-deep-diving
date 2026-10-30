@@ -1,0 +1,31 @@
+Create: Deep Diving 1.0.0-beta.3 — validation
+Minecraft 1.21.1, NeoForge 21.1.238, Create 6.0.10, Java 21.
+Prepared October 29, 2026.
+
+PASS production Gradle build, compilation, simulationTest and Jar-in-Jar packaging.
+PASS forgiving ascent regressions, 50,500 gas conservation transactions, tissue loading,
+     chart survey budgets/coverage, dive statistics and lamp profiles.
+PASS 630 JSON resources, model/texture references, 48 colored wearables and recipes.
+PASS ten distinct 16x16 pictograms plus blank, selective glow, hard alpha and all mounts.
+     All 24 previous pictogram IDs remain registered for old worlds; only ten are available.
+PASS all seven supplied item-icon pixel arrays preserved in the production JAR.
+PASS dedicated server integration probe, including real map-bundle insertion/removal,
+     count conservation, 16-map capacity, sparse paging, names, component save/load,
+     player position tracking, vanilla update packets, both hand locks and stale menus.
+PASS native client review: standard/slim worn trunks front/back, actual placed signs,
+     supplied inventory icons, populated folio, synchronized next page and empty folio.
+PASS native empty-bundle layout at 640x480 with GUI scale 2.
+PASS packaged version is 1.0.0-beta.3, new bundle classes/resources are present,
+     mixin registration is present, and development QA classes are excluded.
+PASS ZIP/JAR CRC integrity and bundled Illumination checksum.
+
+Native screenshots: beta3-trunks.png, beta3-signs.png, beta3-bundle-page1.png,
+                   beta3-bundle-page2.png, beta3-bundle-empty.png.
+Detailed reports: beta3-server-results.txt and beta3-client-results.txt.
+
+The client test originally waited on a newly opened menu before its contents arrived.
+It now waits for synchronized contents and checks page changes through the real packet path.
+No moving-ship, extended multiplayer or third-party shader-pack acceptance is claimed.
+Swim trunks are cosmetic; no new Cold Sweat protection is included.
+
+Production JAR SHA-256: cf4787b6b5c9ae99650cc8dfdccf452cc8b5dad53ff21bdd32a9a2b2f66f944b

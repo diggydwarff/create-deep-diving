@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /** Public equipment state only. The server never creates rendering objects. */
-public record LampState(UUID diver, ResourceLocation dimension, boolean active, boolean held)
+public record LampState(UUID diver, ResourceLocation dimension, boolean active, boolean held, int profile)
         implements CustomPacketPayload {
     public static final Type<LampState> TYPE = new Type<>(DeepDiving.id("lamp_state"));
 
@@ -23,9 +23,10 @@ public record LampState(UUID diver, ResourceLocation dimension, boolean active, 
             buffer.writeResourceLocation(state.dimension);
             buffer.writeBoolean(state.active);
             buffer.writeBoolean(state.held);
+            buffer.writeVarInt(state.profile);
         },
         buffer -> new LampState(buffer.readUUID(), buffer.readResourceLocation(),
-            buffer.readBoolean(), buffer.readBoolean())
+            buffer.readBoolean(), buffer.readBoolean(), buffer.readVarInt())
     );
 
     @Override

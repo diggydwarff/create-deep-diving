@@ -1,0 +1,30 @@
+PASS HUD geometry: both layouts, all sizes, extreme offsets and viewport fitting including the Create ribbon
+PASS compact readouts: 4096 warning combinations fit; stop target, no-gas state and server ascent grace retained
+PASS native config: all four translated size presets, compact toggle, undo and actual TOML save
+PASS native HUD pixels compact-small at 640x450: 138x84 at 8,8
+PASS native HUD pixels compact-normal at 640x450: 184x112 at 8,8
+PASS native HUD pixels compact-large at 640x450: 230x140 at 8,8
+PASS native HUD pixels compact-extra_large at 640x450: 276x168 at 8,8
+PASS native HUD pixels expanded-small at 640x450: 156x117 at 8,8
+PASS native HUD pixels expanded-normal at 640x450: 208x156 at 8,8
+PASS native HUD pixels expanded-large at 640x450: 260x195 at 8,8
+PASS native HUD pixels expanded-extra_large at 640x450: 312x234 at 8,8
+PASS native HUD pixels stop-guidance at 640x450: 184x112 at 8,8
+PASS native HUD pixels all-warnings at 640x450: 184x112 at 8,8
+PASS native HUD pixels large-readings at 640x450: 184x112 at 8,8
+PASS native HUD pixels corner-compact at 640x450: 276x168 at 364,282
+PASS native HUD pixels corner-expanded at 640x450: 312x234 at 328,216
+PASS native HUD pixels compact-small at 320x240: 138x84 at 8,8
+PASS native HUD pixels compact-normal at 320x240: 184x112 at 8,8
+PASS native HUD pixels compact-large at 320x240: 230x140 at 8,8
+PASS native HUD pixels compact-extra_large at 320x240: 276x168 at 8,8
+PASS native HUD pixels expanded-small at 320x240: 156x117 at 8,8
+PASS native HUD pixels expanded-normal at 320x240: 208x156 at 8,8
+PASS native HUD pixels expanded-large at 320x240: 260x195 at 8,8
+PASS native HUD pixels expanded-extra_large at 320x240: 312x234 at 8,6
+PASS native HUD pixels stop-guidance at 320x240: 184x112 at 8,8
+PASS native HUD pixels all-warnings at 320x240: 184x112 at 8,8
+PASS native HUD pixels large-readings at 320x240: 184x112 at 8,8
+PASS native HUD pixels corner-compact at 320x240: 276x168 at 44,72
+PASS native HUD pixels corner-expanded at 320x240: 312x234 at 8,6
+PASS all HUD sizes/layouts, warning states and edge placement rendered at both GUI sizes
