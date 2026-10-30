@@ -8,7 +8,7 @@ A Create addon for underwater exploration, breathing equipment and gas processin
 
 ## Documentation
 
-[Wiki](WIKI.md) · [First dive](wiki/First-Dive.md) · [Configuration](wiki/Configuration.md) · [Changelog](CHANGELOG.md) · [Building](docs/BUILDING.md)
+[Wiki](https://github.com/diggydwarff/create-deep-diving/wiki)
 
 ## License
 
